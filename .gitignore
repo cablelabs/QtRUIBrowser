@@ -1,0 +1,6 @@
+obj
+bin
+Makefile
+qrc_QtRUIBrowser.cpp
+moc_*
+qtruibrowser.ini
