@@ -1,3 +1,14 @@
+/*
+ * (c) 2012 Cable Television Laboratories, Inc. All rights reserved. Proprietary and Confidential.
+ *
+ * ruiwebpage.cpp
+ * QtRUIBrowser
+ *
+ * Created by: sjohnson on 9/6/2012.
+ *
+ * Description: Subclassed QWebPage to provide for the addition of a product token to the useragent header
+ *
+ */
 
 #include "ruiwebpage.h"
 #include <QWebPage>

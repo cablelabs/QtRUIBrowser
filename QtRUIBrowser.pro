@@ -10,8 +10,9 @@ TEMPLATE = app
 ROOT_WEBKIT_DIR = $$(WEBKITDIR)
 
 INCLUDEPATH += \
-    $${ROOT_WEBKIT_DIR}/Source/WebKit/qt/WebCoreSupport \
-    $${ROOT_WEBKIT_DIR}/Source/WTF
+    $${ROOT_WEBKIT_DIR}/Source/WebCore/Modules/discovery \
+#    $${ROOT_WEBKIT_DIR}/Source/WebKit/qt/WebCoreSupport \
+#    $${ROOT_WEBKIT_DIR}/Source/WTF
 
 SOURCES += \
     locationedit.cpp \
@@ -20,7 +21,9 @@ SOURCES += \
     utils.cpp \
     tvremotebridge.cpp \
     browsersettings.cpp \
-    ruiwebpage.cpp
+    ruiwebpage.cpp \
+    discoveryproxy.cpp \
+    discoverystub.cpp
 
 HEADERS += \
     locationedit.h \
@@ -28,7 +31,9 @@ HEADERS += \
     utils.h \
     tvremotebridge.h \
     browsersettings.h \
-    ruiwebpage.h
+    ruiwebpage.h \
+    discoveryproxy.h \
+    discoverystub.h
 
 
 WEBKIT += wtf webcore

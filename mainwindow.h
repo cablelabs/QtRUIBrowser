@@ -1,3 +1,15 @@
+/*
+ * (c) 2012 Cable Television Laboratories, Inc. All rights reserved. Proprietary and Confidential.
+ *
+ * mainwindow.h
+ * QtRUIBrowser
+ *
+ * Created by: sjohnson on 9/6/2012.
+ *
+ * Description: Main application window for QtRUIBrowser
+ *
+ */
+
 #ifndef mainwindow_h
 #define mainwindow_h
 
@@ -5,6 +17,7 @@
 #include <QStringListModel>
 #include <QToolBar>
 #include <QWebView>
+#include "discoveryproxy.h"
 
 class LocationEdit;
 class TVRemoteBridge;
@@ -58,6 +71,7 @@ protected:
     LocationEdit* m_urlEdit;
     TVRemoteBridge* m_tvRemoteBridge;
     BrowserSettings* m_browserSettings;
+    DiscoveryProxy* m_discoveryProxy;
 };
 
 #endif

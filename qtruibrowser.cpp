@@ -1,3 +1,14 @@
+/*
+ * (c) 2012 Cable Television Laboratories, Inc. All rights reserved. Proprietary and Confidential.
+ *
+ * qtruibrowser.cpp
+ * QtRUIBrowser
+ *
+ * Created by: sjohnson on 9/6/2012.
+ *
+ * Description: Application main for QtRUIBrowser
+ *
+ */
 
 #include "mainwindow.h"
 

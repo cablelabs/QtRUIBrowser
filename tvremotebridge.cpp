@@ -1,3 +1,15 @@
+/*
+ * (c) 2012 Cable Television Laboratories, Inc. All rights reserved. Proprietary and Confidential.
+ *
+ * tvremotebridge.cpp
+ * QtRUIBrowser
+ *
+ * Created by: sjohnson on 9/6/2012.
+ *
+ * Description: JavaScript bridge for the TV Remote page to marshal key presses to the navigation page
+ *
+ */
+
 #include "tvremotebridge.h"
 #include "mainwindow.h"
 #include "stdlib.h"

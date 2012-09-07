@@ -1,3 +1,15 @@
+/*
+ * (c) 2012 Cable Television Laboratories, Inc. All rights reserved. Proprietary and Confidential.
+ *
+ * browsersettings.h
+ * QtRUIBrowser
+ *
+ * Created by: sjohnson on 9/6/2012.
+ *
+ * Description: Runtime settings (qtruibrowser.ini)
+ *
+ */
+
 #ifndef BROWSERSETTINGS_H
 #define BROWSERSETTINGS_H
 

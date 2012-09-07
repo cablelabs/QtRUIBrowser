@@ -1,3 +1,15 @@
+/*
+ * (c) 2012 Cable Television Laboratories, Inc. All rights reserved. Proprietary and Confidential.
+ *
+ * mainwindow.cpp
+ * QtRUIBrowser
+ *
+ * Created by: sjohnson on 9/6/2012.
+ *
+ * Description: Main application window for QtRUIBrowser
+ *
+ */
+
 #include "mainwindow.h"
 
 #include "locationedit.h"
@@ -24,6 +36,7 @@ MainWindow::MainWindow()
     , m_pageRemote(0)
     , m_navigationBar(0)
     , m_urlEdit(0)
+    , m_discoveryProxy(0)
     , m_browserSettings(BrowserSettings::Instance())
 {
     init();
@@ -95,6 +108,9 @@ void MainWindow::init()
         setWindowState(windowState() | Qt::WindowMaximized);
     else
         resize(width, height);
+
+    // Discovery Proxy
+    m_discoveryProxy = new DiscoveryProxy;
 }
 
 void MainWindow::buildUI()
