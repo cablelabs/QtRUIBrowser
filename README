@@ -1,0 +1,14 @@
+# QT RUI Browser README
+
+These instructions assume you've build Qt5 and WebKit, following our standard
+instructions.
+
+## Build
+
+    qmake .
+    make
+
+## Run
+
+    # Make sure this points to wherever you built WebKit
+    LD_LIBRARY_PATH=~/workspace/WebKit-Build/Debug/lib bin/QtRUIBrowser
