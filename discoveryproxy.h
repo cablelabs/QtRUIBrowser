@@ -22,6 +22,8 @@
 #endif
 
 #include <QObject>
+#include <QNetworkAccessManager>
+#include "soapmessage.h"
 
 class DiscoveryProxy : public QObject, public IDiscoveryAPI
 {
@@ -31,7 +33,13 @@ public:
 
 private:
 
-    void dumpServerListToConsole(UPnPDeviceList list);
+    UPnPDeviceList m_serverList;
+    QNetworkAccessManager m_soapHttp;
+    QNetworkAccessManager m_http;
+    SoapMessage m_soapMessageGetCompatibleUIs;
+
+    void processServerList(UPnPDeviceList serverList);
+    void requestCompatibleUIs(const UPnPDevice& device);
 
 public slots:
     // Public JavaScript API (bridge)
@@ -40,6 +48,9 @@ private slots:
     // IDiscoveryAPI
     virtual void serverListUpdate(std::string type, UPnPDeviceList devs);
 
+    // HTTP
+    void httpReply(QNetworkReply*);
+    void soapHttpReply(QNetworkReply*);
 };
 
 #endif // DISCOVERYPROXY_H

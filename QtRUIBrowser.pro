@@ -23,7 +23,8 @@ SOURCES += \
     browsersettings.cpp \
     ruiwebpage.cpp \
     discoveryproxy.cpp \
-    discoverystub.cpp
+    discoverystub.cpp \
+    soapmessage.cpp
 
 HEADERS += \
     locationedit.h \
@@ -33,7 +34,8 @@ HEADERS += \
     browsersettings.h \
     ruiwebpage.h \
     discoveryproxy.h \
-    discoverystub.h
+    discoverystub.h \
+    soapmessage.h
 
 
 WEBKIT += wtf webcore
@@ -41,7 +43,7 @@ WEBKIT += wtf webcore
 DESTDIR = bin
 OBJECTS_DIR = obj
 
-QT += network webkit widgets
+QT += network webkit widgets xml
 
 macx:QT += xml
 

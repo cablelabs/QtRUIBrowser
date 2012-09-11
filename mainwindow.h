@@ -70,8 +70,8 @@ protected:
     QStringList m_urlList;
     LocationEdit* m_urlEdit;
     TVRemoteBridge* m_tvRemoteBridge;
-    BrowserSettings* m_browserSettings;
     DiscoveryProxy* m_discoveryProxy;
+    BrowserSettings* m_browserSettings;
 };
 
 #endif
