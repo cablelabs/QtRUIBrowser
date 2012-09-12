@@ -61,16 +61,17 @@ public:
     // UPnPSearch interface
     virtual UPnPDeviceList startServiceDiscovery(std::string type, IDiscoveryAPI *api);
 
+    UPnPDeviceList generateServerList();
+
 private:
     static DiscoveryStub* m_pInstance;
     std::string m_type;
     IDiscoveryAPI* m_discoveryAPI;
     int m_listIndex;
 
-    UPnPDeviceList generateServerList();
     void addDevice(UPnPDeviceList& list, std::string descURL, std::string friendlyName, std::string eventURL, std::string host, std::string port, std::string uuid);
 
-private slots:
+public slots:
 
     void updateServerList();
 

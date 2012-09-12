@@ -17,6 +17,10 @@
 #include "browsersettings.h"
 #include "utils.h"
 #include "ruiwebpage.h"
+
+// Temp
+#include "discoverystub.h"
+
 #include <QMenuBar>
 #include <QKeyEvent>
 #include <QAction>
@@ -293,6 +297,10 @@ QString MainWindow::addressUrl() const
 
 void MainWindow::changeLocation()
 {
+    //m_discoveryProxy->requestCompatibleUIs(QString("http://localhost:2666/control"));
+    DiscoveryStub::Instance()->updateServerList();
+    return;
+
     if (m_browserSettings->hasUrlEdit) {
         QString string = m_urlEdit->text();
         QUrl mainFrameURL = page()->mainFrame()->url();

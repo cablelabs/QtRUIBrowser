@@ -13,19 +13,6 @@ SoapMessage::SoapMessage(QObject *parent) :
 
 }
 
-/*
-        var soapActionString = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-                + "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" "
-                + "s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">"
-                + "<s:Body>"
-                + "<u:GetCompatibleUIs xmlns:u=\"urn:schemas-upnp-org:service:RemoteUIServer:1\">"
-                + "<InputDeviceProfile/>"
-                + "<UIFilter>\"*\"</UIFilter>"
-                + "</u:GetCompatibleUIs>"
-                + "</s:Body>"
-                + "</s:Envelope>";
- **/
-
 void SoapMessage::setMethod(const QString& method, const QString& xmlns, const QString& uri)
 {
     // TODO: Remove existing method if present.
@@ -56,20 +43,11 @@ void SoapMessage::generateEnvelope()
 
     m_body = m_document.createElement(kElementBody);
     root.appendChild(m_body);
-
-    /*
-    QDomElement tag = doc.createElement("Greeting");
-    root.appendChild(tag);
-
-    QDomText t = doc.createTextNode("Hello World");
-    tag.appendChild(t);
-    */
-
-
 }
 
 QString SoapMessage::message()
 {
-    QString xml = m_document.toString();
+    QString xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
+    xml += m_document.toString();
     return xml;
 }

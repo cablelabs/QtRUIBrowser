@@ -36,9 +36,9 @@ UPnPDeviceList DiscoveryStub::startServiceDiscovery(std::string type, IDiscovery
     m_listIndex = 0;
 
     // Start timer to update the server list every 10 seconds
-    QTimer *timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(updateServerList()));
-    timer->start(10000);
+    //QTimer *timer = new QTimer(this);
+    //connect(timer, SIGNAL(timeout()), this, SLOT(updateServerList()));
+    //timer->start(10000);
 
     // return initial list
     return generateServerList();
@@ -48,6 +48,9 @@ UPnPDeviceList DiscoveryStub::generateServerList()
 {
     UPnPDeviceList list;
 
+    addDevice(list,"http://localhost:2666/devdesc.xml","sky tv", "server1.com/event.xml","http://localhost:2666", "5001", "UUID0001" );
+
+    /*
     if (m_listIndex == 0) {
 
         addDevice(list,"server1.com/description.xml","sky tv", "server1.com/event.xml","server1.com", "5001", "UUID0001" );
@@ -62,6 +65,7 @@ UPnPDeviceList DiscoveryStub::generateServerList()
         addDevice(list,"server7.com/description.xml","cablelabs", "server7.com/event.xml","server7.com", "5007", "UUID0007" );
         addDevice(list,"server8.com/description.xml","sony", "server8.com/event.xml","server8.com", "5008", "UUID0008" );
     }
+    */
 
     m_listIndex = !m_listIndex;
     return list;

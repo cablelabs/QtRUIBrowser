@@ -24,7 +24,8 @@ SOURCES += \
     ruiwebpage.cpp \
     discoveryproxy.cpp \
     discoverystub.cpp \
-    soapmessage.cpp
+    soapmessage.cpp \
+    userinterface.cpp
 
 HEADERS += \
     locationedit.h \
@@ -35,7 +36,8 @@ HEADERS += \
     ruiwebpage.h \
     discoveryproxy.h \
     discoverystub.h \
-    soapmessage.h
+    soapmessage.h \
+    userinterface.h
 
 
 WEBKIT += wtf webcore
