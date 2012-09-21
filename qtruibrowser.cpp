@@ -61,6 +61,8 @@ int main(int argc, char **argv)
     app.setApplicationName("QtRUIBrowser");
     app.setApplicationVersion("0.1");
 
+    //qInstallMsgHandler();
+
     MainWindow* window = new MainWindow();
     window->home();
 

@@ -22,8 +22,12 @@
 #endif
 
 #include <QObject>
+#include <QVariant>
+#include <QVariantMap>
 #include <QDomDocument>
 #include <QNetworkAccessManager>
+
+#include "userinterfacemap.h"
 
 class DiscoveryProxy : public QObject, public IDiscoveryAPI
 {
@@ -32,20 +36,34 @@ class DiscoveryProxy : public QObject, public IDiscoveryAPI
 public:
     DiscoveryProxy();
 
+    bool isHostRUIHServer(const QString& hostURL);
+
+    // Debugging
+    void dumpUserInterfaceMap();
+
 private:
 
-    UPnPDeviceList m_deviceList;
-
+    UserInterfaceMap m_userInterfaceMap;
     QNetworkAccessManager m_soapHttp;
     QNetworkAccessManager m_http;
 
     void processDeviceList(UPnPDeviceList);
-    void processDevice(const QString& url, const QDomDocument&);
+    void processDevice(const QString& url, const QDomDocument& document);
+    void processUIList(const QString& url, const QDomDocument& document);
     void requestCompatibleUIs(const QString&);
+    QString trimElementText(const QString&);
+    QString elementTextForTag(const QDomNode& parent, const QString& tag);
+
+signals:
+
+    void ruiListNotification();
 
 public slots:
 
     // Public JavaScript API (bridge)
+    //QVariantMap ruiList();
+    QVariantList ruiList();
+    void console(const QString&);
 
 private slots:
 

@@ -1,5 +1,14 @@
 <RCC>
     <qresource prefix="/">
         <file>favicon.png</file>
+        <file>www/index.html</file>
+        <file>www/rui_background.png</file>
+        <file>www/rui.css</file>
+        <file>www/rui.js</file>
+        <file>www/rui_elementFrame.png</file>
+        <file>www/rui_elementName.png</file>
+        <file>www/rui_elementNumber.png</file>
+        <file>www/rui_arrowUp.png</file>
+        <file>www/rui_arrowDown.png</file>
     </qresource>
 </RCC>

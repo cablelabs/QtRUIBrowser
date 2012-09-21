@@ -26,11 +26,13 @@ QString RUIWebPage::userAgentForUrl(const QUrl& url) const
     QString scheme = url.scheme();
     QString host = url.host();
 
+    /*
     fprintf(stderr,"url: %s **  scheme: %s**  host: %s\n"
             , url.toString().toAscii().data()
             , scheme.toAscii().data()
             , host.toAscii().data()
             );
+            */
 
     return userAgent;
 }

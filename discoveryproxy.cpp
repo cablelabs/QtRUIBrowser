@@ -20,10 +20,15 @@
 #include <QDomElement>
 #include <QDomNodeList>
 #include <QDomNode>
+#include <QDomDocumentFragment>
+#include <QMapNode>
+#include <QMap>
+#include <QVariant>
+#include <QVariantMap>
 
 const char* xmlns_dlna = "xmlns:dlna";
 const char* schema_device = "urn:schemas-dlna-org:device-1-0";
-const char* service_type = "upnp:urn:schemas-upnp-org:service:RemoteUIServer:1";
+const char* service_type = "urn:schemas-upnp-org:service:RemoteUIServer:1";
 const char* service_urn = "urn:upnp-org:serviceId:RemoteUIServer";
 
 DiscoveryProxy::DiscoveryProxy()
@@ -54,13 +59,11 @@ void DiscoveryProxy::serverListUpdate(std::string type, UPnPDeviceList deviceLis
 // Here to request a device description for each server
 void DiscoveryProxy::processDeviceList(UPnPDeviceList deviceList)
 {
-    m_deviceList = deviceList;
-
     UPnPDeviceList::iterator p;
 
     fprintf(stderr,"\nServer List Update:\n");
 
-    for (p = m_deviceList.begin(); p!=m_deviceList.end(); ++p) {
+    for (p = deviceList.begin(); p!=deviceList.end(); ++p) {
 
         UPnPDevice device = p->second;
         fprintf(stderr,"RUI Server: %s -> %s\n", device.friendlyName.c_str(), device.descURL.c_str());
@@ -74,28 +77,155 @@ void DiscoveryProxy::processDeviceList(UPnPDeviceList deviceList)
     }
 }
 
+// Here with a new root device description.
 void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& document)
 {
     QString baseURL = url.left(url.lastIndexOf("/"));
 
     // A device can have multiple devices and each device can have multiple services.
-    // Filter by the service we are interested in.
+    // Filter by the device/service pairs we are interested in.
 
-    QDomNodeList nodes = document.elementsByTagName("service");
+    QDomNodeList deviceList = document.elementsByTagName("device");
 
-    for (int i=0; i < nodes.count(); i++) {
+    for (int i=0; i < deviceList.count(); i++) {
 
-        QDomNode node = nodes.item(i);
-        QDomElement elem = node.firstChildElement("serviceId");
-        QString serviceId = elem.text();
-        if (serviceId.compare(service_urn) == 0) {
-            elem = node.firstChildElement("controlURL");
-            QString controlURL = baseURL + elem.text();
-            fprintf( stderr, "controlURL: %s\n", controlURL.toAscii().data());
-            requestCompatibleUIs(controlURL);
+        QDomNode device = deviceList.item(i);
+
+        RUIDevice ruiDevice;
+
+        ruiDevice.m_friendlyName = trimElementText(device.firstChildElement("friendlyName").text());
+        ruiDevice.m_uuid = trimElementText(device.firstChildElement("UDN").text());
+        ruiDevice.m_baseURL = baseURL;
+
+        // We are only interested devices that implement the the RemoteUIServer service.
+        QDomElement serviceList = device.firstChildElement("serviceList");
+        if (!serviceList.isNull()) {
+
+            QString tag = "service";
+            QDomElement service = serviceList.firstChildElement(tag);
+            while (!service.isNull()) {
+
+                QDomElement serviceType = service.firstChildElement("serviceType");
+
+                QString serviceTypeText = trimElementText(serviceType.text());
+                if (serviceTypeText.compare(service_type) == 0) {
+
+                    // Matching service type.
+                    RUIService ruiService;
+                    ruiService.m_baseURL = baseURL;
+
+                    QDomElement controlURL = service.firstChildElement("controlURL");
+                    ruiService.m_controlURL = baseURL + trimElementText(controlURL.text());
+
+                    QDomElement descriptionURL = service.firstChildElement("SCPDURL");
+                    ruiService.m_descriptionURL = baseURL + trimElementText(descriptionURL.text());
+
+                    QDomElement eventURL = service.firstChildElement("eventSubURL");
+                    ruiService.m_eventURL = baseURL + trimElementText(eventURL.text());
+
+                    ruiService.m_serviceType = trimElementText(serviceType.text());
+
+                    QDomElement serviceID = service.firstChildElement("serviceId");
+                    ruiService.m_serviceID = baseURL + trimElementText(serviceID.text());
+
+                    ruiDevice.m_serviceList.append(ruiService);
+
+                    fprintf( stderr, "controlURL: %s\n", ruiService.m_controlURL.toAscii().data());
+                    requestCompatibleUIs(ruiService.m_controlURL);
+                }
+
+                // Loop through all of the services for this device.
+                service = service.nextSiblingElement(tag).toElement();
+            }
+        }
+
+        if (ruiDevice.m_serviceList.count()) {
+
+            m_userInterfaceMap.addDevice(ruiDevice);
+
+        } else {
+
+            // Unlikey event that an existing device no longer provides a service
+            m_userInterfaceMap.removeDevice(ruiDevice.m_uuid);
         }
     }
 }
+
+void DiscoveryProxy::processUIList(const QString& url, const QDomDocument& document)
+{
+    QString baseURL = url.left(url.lastIndexOf("/"));
+
+    QString serviceKey = url;
+    QList<RUIInterface> serviceUIs;
+
+    QDomNodeList uiList = document.elementsByTagName("ui");
+
+    for (int i=0; i < uiList.count(); i++) {
+
+        QDomNode ui = uiList.item(i);
+        RUIInterface ruiInterface;
+
+        ruiInterface.m_uiID = trimElementText(ui.firstChildElement("uiID").text());
+        ruiInterface.m_name = trimElementText(ui.firstChildElement("name").text());
+        ruiInterface.m_description = trimElementText(ui.firstChildElement("description").text());
+
+        // Icons
+        QDomElement iconList = ui.firstChildElement("iconList");
+        if (!iconList.isNull()) {
+
+            QString tag = "icon";
+            QDomElement icon = iconList.firstChildElement(tag);
+            while (!icon.isNull()) {
+
+                RUIIcon ruiIcon;
+
+                ruiIcon.m_mimeType = elementTextForTag(icon, "mimetype");
+                ruiIcon.m_url = baseURL + elementTextForTag(icon, "url");
+                ruiIcon.m_width = elementTextForTag(icon, "width");
+                ruiIcon.m_height = elementTextForTag(icon, "height");
+                ruiIcon.m_depth = elementTextForTag(icon, "depth");
+
+                ruiInterface.m_iconList.append(ruiIcon);
+
+                // Loop through all of the icons for this device.
+                icon = icon.nextSiblingElement(tag).toElement();
+            }
+        }
+
+        // Protocols
+        QString protocolTag = "protocol";
+        QDomElement protocol = ui.firstChildElement(protocolTag);
+        while (!protocol.isNull()) {
+
+            RUIProtocol ruiProtocol;
+
+            ruiProtocol.m_shortName = protocol.attribute("shortName");
+
+            ruiProtocol.m_protocolInfo = elementTextForTag(protocol, "protocolInfo");
+
+            QString uriTag = "uri";
+
+            QDomElement uri = protocol.firstChildElement(uriTag);
+            while (!uri.isNull()) {
+                ruiProtocol.m_uriList.append(trimElementText(uri.text()));
+                uri = uri.nextSiblingElement(uriTag).toElement();
+            }
+
+            ruiInterface.m_protocolList.append(ruiProtocol);
+
+            // Loop through all of the icons for this device.
+            protocol = protocol.nextSiblingElement(protocolTag).toElement();
+        }
+
+        serviceUIs.append(ruiInterface);
+    }
+
+    m_userInterfaceMap.addServiceUIs(serviceKey, serviceUIs);
+
+    fprintf( stderr, "emitting ruiListNotification\n");
+    emit ruiListNotification();
+}
+
 
 // Here with a qualified controlURL for a RemoteUIServer service.
 void DiscoveryProxy::requestCompatibleUIs(const QString& url)
@@ -174,28 +304,59 @@ void DiscoveryProxy::soapHttpReply(QNetworkReply* reply)
         return;
     }
 
-    /*
-  <ui>
-    <uiID>UI_ID</uiID>
-    <name>UI_NAME</name>
-    <description>UI_DESC</description>
-    <iconList>
-      <icon>
-        <mimetype>image/png</mimetype>
-        <width>UI_IMG_WIDTH</width>
-        <height>UI_IMAGE_HEIGHT</height>
-        <depth>0</depth>
-        <url>/UI_BASE.png</url>
-      </icon>
-    </iconList>
-    <fork>0</fork>
-    <lifetime>1</lifetime>
-    <protocol shortName="HTTP">
-      <uri>DLNA-HTML5-1.0://localhostip:port/UI_BASE.html</uri>
-      <protocolInfo>http</protocolInfo>
-    </protocol>
-  </ui>     */
+    processUIList(url, document);
+}
+
+// Here to return the trimmed text of a single occurance child element.
+QString DiscoveryProxy::elementTextForTag(const QDomNode& parent, const QString& tag)
+{
+    QDomElement element = parent.firstChildElement(tag);
+    return trimElementText(element.text());
+}
 
 
+QString DiscoveryProxy::trimElementText(const QString& str)
+{
+    QString temp = "";
+
+    // Trim end
+    int n = str.size() - 1;
+    for (; n >= 0; --n) {
+
+        char c = str.at(n).toAscii();
+        if (!(c == ' ' || c == '\n' || c == '\r' || c == '\t')) {
+            temp = str.left(n+1);
+            break;
+        }
+    }
+
+    // Trim beginning
+    for (n=0; n < temp.size(); n++) {
+
+        char c = temp.at(n).toAscii();
+        if (!(c == ' ' || c == '\n' || c == '\r' || c == '\t')) {
+            temp = temp.right(temp.size()-n);
+            break;
+        }
+    }
+
+    return temp;
+}
+
+void DiscoveryProxy::dumpUserInterfaceMap()
+{
+    m_userInterfaceMap.dumpToConsole();
+}
+
+// Here to return a list of RUIs to javascript
+QVariantList DiscoveryProxy::ruiList()
+{
+    return m_userInterfaceMap.generateUIList();
+}
+
+// JavaScript output to application console.
+void DiscoveryProxy::console(const QString& str)
+{
+    fprintf( stderr,"%s\n", str.toAscii().data());
 }
 

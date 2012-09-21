@@ -28,12 +28,16 @@
 #include <QWebView>
 #include <QWebPage>
 #include <QCompleter>
+#include <QUrl>
+#include <QTimer>
 
 #define TV_REMOTE_SIMULATOR 1
 
 #define RUI_WIDTH 880
 #define REMOTE_WIDTH 246
-#define RUI_HEIGHT 690
+#define RUI_HEIGHT 715
+
+const char* rui_home = "qrc:/www/index.html";
 
 MainWindow::MainWindow()
     : m_page(0)
@@ -115,6 +119,14 @@ void MainWindow::init()
 
     // Discovery Proxy
     m_discoveryProxy = new DiscoveryProxy;
+
+    // Connect proxy load signals
+    attachProxyObject();
+    connect( m_view, SIGNAL(loadFinished(bool)), this, SLOT(onPageLoaded(bool)) );
+    connect( m_page->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(onJavaScriptWindowObjectCleared()) );    
+
+    // Temp for testing.
+    QTimer::singleShot(1000, this, SLOT(updateServerList()));
 }
 
 void MainWindow::buildUI()
@@ -129,19 +141,19 @@ void MainWindow::buildUI()
     m_navigationBar = addToolBar("Navigation");
 
     if (m_browserSettings->hasBackButton) {
-        m_navigationBar->addAction(page()->action(QWebPage::Back));
+        m_navigationBar->addAction(m_page->action(QWebPage::Back));
     }
 
     if (m_browserSettings->hasStopButton) {
-        m_navigationBar->addAction(page()->action(QWebPage::Stop));
+        m_navigationBar->addAction(m_page->action(QWebPage::Stop));
     }
 
     if (m_browserSettings->hasForwardButton) {
-        m_navigationBar->addAction(page()->action(QWebPage::Forward));
+        m_navigationBar->addAction(m_page->action(QWebPage::Forward));
     }
 
     if (m_browserSettings->hasReloadButton) {
-        QAction* reloadAction = page()->action(QWebPage::Reload);
+        QAction* reloadAction = m_page->action(QWebPage::Reload);
         connect(reloadAction, SIGNAL(triggered()), this, SLOT(changeLocation()));
         m_navigationBar->addAction(reloadAction);
     }
@@ -159,10 +171,10 @@ void MainWindow::buildUI()
         completer->setModel(&m_urlModel);
         m_navigationBar->addWidget(m_urlEdit);
 
-        connect(page()->mainFrame(), SIGNAL(urlChanged(QUrl)), this, SLOT(setAddressUrl(QUrl)));
-        connect(page(), SIGNAL(loadProgress(int)), m_urlEdit, SLOT(setProgress(int)));
-        connect(page()->mainFrame(), SIGNAL(loadStarted()), this, SLOT(onLoadStarted()));
-        connect(page()->mainFrame(), SIGNAL(iconChanged()), this, SLOT(onIconChanged()));
+        connect(m_page->mainFrame(), SIGNAL(urlChanged(QUrl)), this, SLOT(setAddressUrl(QUrl)));
+        connect(m_page, SIGNAL(loadProgress(int)), m_urlEdit, SLOT(setProgress(int)));
+        connect(m_page->mainFrame(), SIGNAL(loadStarted()), this, SLOT(onLoadStarted()));
+        connect(m_page->mainFrame(), SIGNAL(iconChanged()), this, SLOT(onIconChanged()));
     }
 
     if (!m_browserSettings->hasNavigationBar) {
@@ -171,18 +183,18 @@ void MainWindow::buildUI()
 
 
     if (m_browserSettings->hasTitleBar) {
-        connect(page()->mainFrame(), SIGNAL(titleChanged(QString)), this, SLOT(onTitleChanged(QString)));
+        connect(m_page->mainFrame(), SIGNAL(titleChanged(QString)), this, SLOT(onTitleChanged(QString)));
     }
 
     // Not sure what this does
-    connect(page(), SIGNAL(windowCloseRequested()), this, SLOT(close()));
+    connect(m_page, SIGNAL(windowCloseRequested()), this, SLOT(close()));
 
 #ifndef QT_NO_SHORTCUT
     // short-cuts
-    page()->action(QWebPage::Back)->setShortcut(QKeySequence::Back);
-    page()->action(QWebPage::Stop)->setShortcut(Qt::Key_Escape);
-    page()->action(QWebPage::Forward)->setShortcut(QKeySequence::Forward);
-    page()->action(QWebPage::Reload)->setShortcut(QKeySequence::Refresh);
+    m_page->action(QWebPage::Back)->setShortcut(QKeySequence::Back);
+    m_page->action(QWebPage::Stop)->setShortcut(Qt::Key_Escape);
+    m_page->action(QWebPage::Forward)->setShortcut(QKeySequence::Forward);
+    m_page->action(QWebPage::Reload)->setShortcut(QKeySequence::Refresh);
 
     // TODO: Home key shortcut
 #endif
@@ -191,18 +203,18 @@ void MainWindow::buildUI()
 void MainWindow::createMenuBar()
 {
     QMenu* fileMenu = menuBar()->addMenu("&File");
-    fileMenu->addAction("New Window", this, SLOT(newWindow()), QKeySequence::New);
-    fileMenu->addAction(tr("Open File..."), this, SLOT(openFile()), QKeySequence::Open);
+    //fileMenu->addAction("New Window", this, SLOT(newWindow()), QKeySequence::New);
+    //fileMenu->addAction(tr("Open File..."), this, SLOT(openFile()), QKeySequence::Open);
     fileMenu->addAction(tr("Open Location..."), this, SLOT(openLocation()), QKeySequence(Qt::CTRL | Qt::Key_L));
     fileMenu->addAction("Close Window", this, SLOT(close()), QKeySequence::Close);
     fileMenu->addSeparator();
-    fileMenu->addAction("Take Screen Shot...", this, SLOT(screenshot()));
+    //fileMenu->addAction("Take Screen Shot...", this, SLOT(screenshot()));
     fileMenu->addSeparator();
     fileMenu->addAction("Quit", QApplication::instance(), SLOT(closeAllWindows()), QKeySequence(Qt::CTRL | Qt::Key_Q));
 
     QMenu* viewMenu = menuBar()->addMenu("&View");
-    viewMenu->addAction(page()->action(QWebPage::Stop));
-    viewMenu->addAction(page()->action(QWebPage::Reload));
+    viewMenu->addAction(m_page->action(QWebPage::Stop));
+    viewMenu->addAction(m_page->action(QWebPage::Reload));
     viewMenu->addSeparator();
     QAction* showTVRemote = viewMenu->addAction("TVRemote", this, SLOT(toggleTVRemote(bool)));
     showTVRemote->setCheckable(true);
@@ -210,6 +222,10 @@ void MainWindow::createMenuBar()
     QAction* showNavigationBar = viewMenu->addAction("Navigation Bar", this, SLOT(toggleNavigationBar(bool)));
     showNavigationBar->setCheckable(true);
     showNavigationBar->setChecked(m_browserSettings->hasNavigationBar);
+
+    QMenu* debugMenu = menuBar()->addMenu("&Debug");
+    debugMenu->addAction("Dump UIs", this, SLOT(dumpUserInterfaceMap()));
+    debugMenu->addAction("Update Server List", this, SLOT(updateServerList()));
 }
 
 void MainWindow::home()
@@ -218,26 +234,13 @@ void MainWindow::home()
 
     // Default RUI. What if there is no default RUI and nothing is discovered?
 
+    load("rui:home");
+    return;
+
     QString url = m_browserSettings->defaultRUIUrl;
     if (url.size() > 0 ) {
         load(m_browserSettings->defaultRUIUrl);
     }
-}
-
-void MainWindow::setPage(RUIWebPage* page)
-{
-   // if (page && m_page)
-   //     page->setUserAgent(m_page->userAgentForUrl(QUrl()));
-
-    delete m_page;
-    m_page = page;
-
-    buildUI();
-}
-
-RUIWebPage* MainWindow::page() const
-{
-    return m_page;
 }
 
 void MainWindow::setAddressUrl(const QUrl& url)
@@ -248,8 +251,9 @@ void MainWindow::setAddressUrl(const QUrl& url)
 void MainWindow::setAddressUrl(const QString& url)
 {
     if (m_browserSettings->hasUrlEdit) {
-    if (!url.contains("about:"))
-        m_urlEdit->setText(url);
+        if (!url.contains("about:")) {
+            m_urlEdit->setText(url);
+        }
     }
 }
 
@@ -271,9 +275,18 @@ void MainWindow::addCompleterEntry(const QUrl& url)
 
 void MainWindow::load(const QString& url)
 {
-    QUrl qurl = urlFromUserInput(url);
-    if (qurl.scheme().isEmpty())
+    QUrl qurl;
+
+    if (url.compare("rui:home") == 0) {
+        qurl = QUrl(rui_home);
+    } else {
+        qurl = urlFromUserInput(url);
+    }
+
+    if (qurl.scheme().isEmpty()) {
         qurl = QUrl("http://" + url + "/");
+    }
+
     load(qurl);
 }
 
@@ -283,7 +296,7 @@ void MainWindow::load(const QUrl& url)
         return;
 
     setAddressUrl(url.toString());
-    page()->mainFrame()->load(url);
+    m_page->mainFrame()->load(url);
 }
 
 QString MainWindow::addressUrl() const
@@ -297,21 +310,28 @@ QString MainWindow::addressUrl() const
 
 void MainWindow::changeLocation()
 {
-    //m_discoveryProxy->requestCompatibleUIs(QString("http://localhost:2666/control"));
-    DiscoveryStub::Instance()->updateServerList();
-    return;
-
     if (m_browserSettings->hasUrlEdit) {
         QString string = m_urlEdit->text();
-        QUrl mainFrameURL = page()->mainFrame()->url();
+        QUrl mainFrameURL = m_page->mainFrame()->url();
 
         if (mainFrameURL.isValid() && string == mainFrameURL.toString()) {
-            page()->triggerAction(QWebPage::Reload);
+            m_page->triggerAction(QWebPage::Reload);
             return;
         }
 
         load(string);
     }
+}
+
+// Debugging
+void MainWindow::updateServerList()
+{
+    DiscoveryStub::Instance()->updateServerList();
+}
+
+void MainWindow::dumpUserInterfaceMap()
+{
+    m_discoveryProxy->dumpUserInterfaceMap();
 }
 
 void MainWindow::toggleTVRemote(bool b)
@@ -340,7 +360,7 @@ void MainWindow::openLocation()
 void MainWindow::onIconChanged()
 {
     if (m_browserSettings->hasUrlEdit) {
-        m_urlEdit->setPageIcon(page()->mainFrame()->icon());
+        m_urlEdit->setPageIcon(m_page->mainFrame()->icon());
     }
 }
 
@@ -403,7 +423,37 @@ MainWindow::eventFilter(QObject* object, QEvent* event)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Space) {
-        ::exit(0);
+    if (event->key() == Qt::Key_Escape) {
+        home();
+    }
+}
+
+void MainWindow::attachProxyObject()
+{
+    m_page->mainFrame()->addToJavaScriptWindowObject( QString("discoveryProxy"), m_discoveryProxy );
+    //m_page->mainFrame()->evaluateJavaScript("proxyConnect(); null");
+}
+
+// Here when the global window object of the JavaScript environment is cleared, e.g., before starting a new load
+// If this is the rui:home page, add our discovery proxy to the window.
+void MainWindow::onJavaScriptWindowObjectCleared()
+{
+    QString url = m_view->url().toString();
+
+    //fprintf(stderr,"onJavaScriptWindowObjectCleared: %s\n", url.toAscii().data());
+
+    if ( url.compare(rui_home) == 0) {
+        attachProxyObject();
+    }
+}
+
+// Here when a page load is finished.
+// If this is the rui:home page, signal that the UI list is available.
+void MainWindow::onPageLoaded(bool ok)
+{
+    if (ok) {
+
+        QString url = m_view->url().toString();
+        //fprintf(stderr,"onPageLoaded: %s\n", url.toAscii().data());
     }
 }

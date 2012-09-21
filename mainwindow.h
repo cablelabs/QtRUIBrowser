@@ -31,26 +31,25 @@ public:
     MainWindow();
 
     void addCompleterEntry(const QUrl& url);
-
     void load(const QString& url);
     void load(const QUrl& url);
-
-    RUIWebPage* page() const;
-    void setPage(RUIWebPage*);
     void home();
 
 protected slots:
     void setAddressUrl(const QString& url);
     void setAddressUrl(const QUrl& url);
-    //void openFile();
     void openLocation();
     void changeLocation();
     void toggleTVRemote(bool on);
     void toggleNavigationBar(bool on);
+    void dumpUserInterfaceMap();
+    void updateServerList();
 
     void onIconChanged();
     void onLoadStarted();
     void onTitleChanged(const QString&);
+    void onPageLoaded(bool);
+    void onJavaScriptWindowObjectCleared();
 
 protected:
     QString addressUrl() const;
@@ -60,6 +59,7 @@ protected:
     void buildUI();
     void init();
     void createMenuBar();
+    void attachProxyObject();
 
     QWebView* m_view;
     QWebView* m_tvRemoteView;

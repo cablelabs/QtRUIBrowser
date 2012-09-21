@@ -25,7 +25,8 @@ SOURCES += \
     discoveryproxy.cpp \
     discoverystub.cpp \
     soapmessage.cpp \
-    userinterface.cpp
+    userinterface.cpp \
+    userinterfacemap.cpp
 
 HEADERS += \
     locationedit.h \
@@ -37,10 +38,13 @@ HEADERS += \
     discoveryproxy.h \
     discoverystub.h \
     soapmessage.h \
-    userinterface.h
+    userinterface.h \
+    userinterfacemap.h
 
 
 WEBKIT += wtf webcore
+
+CONFIG += debug
 
 DESTDIR = bin
 OBJECTS_DIR = obj
@@ -58,3 +62,14 @@ contains(QT_CONFIG, opengl) {
 
 RESOURCES += \
     QtRUIBrowser.qrc
+
+OTHER_FILES += \
+    www/index.html \
+    www/rui_background.png \
+    www/rui.js \
+    www/rui.css \
+    www/rui_elementFrame.png \
+    www/rui_elementNumber.png \
+    www/rui_elementName.png \
+    www/rui_arrowUp.png \
+    www/rui_arrowDown.png

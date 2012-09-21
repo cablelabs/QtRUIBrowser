@@ -78,6 +78,7 @@ void appQuit(int exitCode, const QString& msg)
 QUrl urlFromUserInput(const QString& string)
 {
     QString input(string);
+
     QFileInfo fi(input);
     if (fi.exists() && fi.isRelative())
         input = fi.absoluteFilePath();

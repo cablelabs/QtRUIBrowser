@@ -1,0 +1,105 @@
+body
+{
+    background-color: Aqua;
+    background-image: url(qrc:/www/rui_background.png);
+    background-repeat: no-repeat;
+    width: 980px;
+}
+
+.uiElement
+{
+    background-color: Yellow;
+    background-repeat: no-repeat;
+    font-family : Sans-Serif;
+    color: White;
+}
+
+.uiElementNumber
+{
+    background-image: url(qrc:/www/rui_elementNumber.png);
+    background-repeat: no-repeat;
+    width: 130px;
+    height: 115px;
+    float: left;
+    text-align: center;
+    left: 0;
+    top: 0;
+    font-size : 50px;
+    font-weight: 400;
+    padding-top: 57px;
+}
+
+.uiElementIcon
+{
+    height:172px;
+    width: 162px;
+    float: left;
+    padding: 0;
+    margin: 0;
+    margin-left: 10px;
+}
+
+.uiElementName
+{
+
+    background-image: url(qrc:/www/rui_elementName.png);
+    background-repeat: no-repeat;
+    height:172px;
+    width:798px;
+    float:left;
+    padding: 0;
+    margin: 0;
+}
+.uiElementText
+{
+    height: 120px;
+    width:580px;
+    float:left;
+    padding: 0;
+    margin-left: 40px;
+    font-size : 60px;
+    font-weight: 400;
+    padding-top: 53px;
+}
+
+.arrowVisible
+{
+    opacity: .50;
+}
+
+.arrowHidden
+{
+    opacity: .01;
+}
+
+#navUI
+{
+    width: 930px;
+}
+
+#navHeader
+{
+    width: 100%;
+    padding: 0px;
+    margin: 0px;
+    margin-top: 10px;
+    margin-left: 25px;
+}
+
+#navFooter
+{
+    width: 100%;
+    padding: 0px;
+    margin: 0px;
+    margin-left: 25px;
+    clear: both;
+}
+
+
+
+#tvRemote2
+{
+    opacity: 1.0;
+    position: relative;
+    left: -114px;
+}
