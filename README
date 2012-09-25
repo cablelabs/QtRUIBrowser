@@ -5,6 +5,9 @@ instructions.
 
 ## Build
 
+	# With the latest WebKit distro, the following variable needs to be set before running qmake:
+	export QMAKEPATH=<yourPath>/WebKit/Tools/qmake
+
     qmake .
     make
 

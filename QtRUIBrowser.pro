@@ -42,11 +42,14 @@ HEADERS += \
     userinterfacemap.h
 
 
-WEBKIT += wtf webcore
+WEBKIT += wtf webcore webkit1
 
-CONFIG += debug
+#CONFIG += debug
+#CONFIG -= release
+CONFIG -= production_build
+WEBKIT_CONFIG -= build_webkit2
 
-DESTDIR = bin
+DESTDIR = $(PWD)/bin
 OBJECTS_DIR = obj
 
 QT += network webkit widgets xml
