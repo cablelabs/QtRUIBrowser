@@ -12,7 +12,7 @@ ROOT_WEBKIT_DIR = $$(WEBKITDIR)
 INCLUDEPATH += \
     $${ROOT_WEBKIT_DIR}/Source/WebCore/Modules/discovery \
 #    $${ROOT_WEBKIT_DIR}/Source/WebKit/qt/WebCoreSupport \
-#    $${ROOT_WEBKIT_DIR}/Source/WTF
+    $${ROOT_WEBKIT_DIR}/Source/WTF
 
 SOURCES += \
     locationedit.cpp \
@@ -47,6 +47,7 @@ WEBKIT += wtf webcore webkit1
 #CONFIG += debug
 #CONFIG -= release
 CONFIG -= production_build
+WEBKIT_CONFIG -= build_webkit1
 WEBKIT_CONFIG -= build_webkit2
 
 DESTDIR = $(PWD)/bin

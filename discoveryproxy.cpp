@@ -12,8 +12,8 @@
 
 #include "discoveryproxy.h"
 #include "soapmessage.h"
+
 #include <stdio.h>
-//#include "qdom.h"
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QDomDocument>
@@ -37,24 +37,38 @@ DiscoveryProxy::DiscoveryProxy()
     // Connect signals to slots.
     connect(&m_http, SIGNAL(finished(QNetworkReply*)), this, SLOT(httpReply(QNetworkReply*)));
     connect(&m_soapHttp, SIGNAL(finished(QNetworkReply*)), this, SLOT(soapHttpReply(QNetworkReply*)));
+    connect(this, SIGNAL(ruiDeviceAvailable(QString)), this, SLOT(requestDeviceDescription(QString)));
 
 #ifdef DISCOVERY_STUB
-    UPnPDeviceList serverList = DiscoveryStub::Instance()->startServiceDiscovery(service_type, this );
-    //processServerList(serverList);
+    UPnPDeviceList deviceList = DiscoveryStub::Instance()->startServiceDiscovery(service_type, this );
+    processServerList(deviceList);
 #else
 // Start real discovery
+    UPnPDeviceList deviceList = NavDsc::getInstance()->startUPnPInternalDiscovery(service_type, this );
+    processDeviceList(deviceList);
 #endif
 }
 
 // Here with an updated server list from the Disovery module (callback)
-void DiscoveryProxy::serverListUpdate(std::string type, UPnPDeviceList deviceList)
+void DiscoveryProxy::serverListUpdate(std::string type, UPnPDeviceList *deviceList)
 {
     if ( type.compare(service_type) != 0 ) {
         fprintf(stderr,"\nServer List Update: Invalid service type: %s\n", type.c_str());
     } else {
-        processDeviceList(deviceList);
+        processDeviceList(*deviceList);
     }
 }
+
+// Here on a SLOT to execute http request on main thread (signaled from serverListUpdate()
+void DiscoveryProxy::requestDeviceDescription( QString url)
+{
+    QNetworkRequest networkReq;
+    networkReq.setHeader(QNetworkRequest::ContentTypeHeader, QLatin1String("text/xml;charset=utf-8"));
+    networkReq.setUrl(url);
+
+    m_http.get(networkReq);
+}
+
 
 // Here to request a device description for each server
 void DiscoveryProxy::processDeviceList(UPnPDeviceList deviceList)
@@ -67,13 +81,7 @@ void DiscoveryProxy::processDeviceList(UPnPDeviceList deviceList)
 
         UPnPDevice device = p->second;
         fprintf(stderr,"RUI Server: %s -> %s\n", device.friendlyName.c_str(), device.descURL.c_str());
-
-        // Request RUI Server Description
-        QNetworkRequest networkReq;
-        networkReq.setHeader(QNetworkRequest::ContentTypeHeader, QLatin1String("text/xml;charset=utf-8"));
-        networkReq.setUrl(QUrl(device.descURL.c_str()));
-
-        m_http.get(networkReq);
+        emit ruiDeviceAvailable(QString(device.descURL.c_str()));
     }
 }
 
@@ -258,8 +266,6 @@ void DiscoveryProxy::httpReply(QNetworkReply* reply)
     QString xml(reply->readAll());
     QString url = reply->url().toString();
     fprintf( stderr, "http reply from url: %s\n%s\n", url.toAscii().data(),xml.toAscii().data());
-
-    // TODO: Need to trim \r\n and spaces from element text!
 
     // Parse the reply, create document
     QString errorMessage;

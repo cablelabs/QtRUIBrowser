@@ -19,7 +19,7 @@
 #include "ruiwebpage.h"
 
 // Temp
-#include "discoverystub.h"
+//#include "discoverystub.h"
 
 #include <QMenuBar>
 #include <QKeyEvent>
@@ -326,7 +326,7 @@ void MainWindow::changeLocation()
 // Debugging
 void MainWindow::updateServerList()
 {
-    DiscoveryStub::Instance()->updateServerList();
+    //DiscoveryStub::Instance()->updateServerList();
 }
 
 void MainWindow::dumpUserInterfaceMap()

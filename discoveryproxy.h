@@ -13,12 +13,16 @@
 #ifndef DISCOVERYPROXY_H
 #define DISCOVERYPROXY_H
 
-#define DISCOVERY_STUB
+//#define DISCOVERY_STUB
 
 #ifdef DISCOVERY_STUB
 #include "discoverystub.h"
 #else
 // Gar's files go here.
+#include "NavDsc.h"
+#include "IDiscoveryAPI.h"
+typedef std::map<std::basic_string<char>, sUPnPDevice> UPnPDeviceList;
+using namespace WebCore;
 #endif
 
 #include <QObject>
@@ -28,6 +32,7 @@
 #include <QNetworkAccessManager>
 
 #include "userinterfacemap.h"
+Q_DECLARE_METATYPE(UPnPDevice)
 
 class DiscoveryProxy : public QObject, public IDiscoveryAPI
 {
@@ -57,18 +62,29 @@ private:
 signals:
 
     void ruiListNotification();
+    void ruiDeviceAvailable(QString);
 
 public slots:
 
     // Public JavaScript API (bridge)
-    //QVariantMap ruiList();
     QVariantList ruiList();
     void console(const QString&);
 
 private slots:
 
     // IDiscoveryAPI
-    virtual void serverListUpdate(std::string type, UPnPDeviceList devs);
+    virtual void serverListUpdate(std::string type, UPnPDeviceList *devs);
+
+    // IDiscoveryAPI - not implemented
+    virtual void UPnPDevAdded(std::string) {}
+    virtual void UPnPDevDropped(std::string) {}
+    virtual void ZCDevAdded(std::string) {}
+    virtual void ZCDevDropped(std::string) {}
+    virtual void sendEvent(std::string, std::string, std::string) {}
+    virtual void onError(int) {}
+
+    // For executing on main thread.
+    void requestDeviceDescription(QString);
 
     // HTTP
     void httpReply(QNetworkReply*);
