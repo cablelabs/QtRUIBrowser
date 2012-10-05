@@ -13,17 +13,12 @@
 #ifndef DISCOVERYPROXY_H
 #define DISCOVERYPROXY_H
 
-//#define DISCOVERY_STUB
-
-#ifdef DISCOVERY_STUB
-#include "discoverystub.h"
-#else
-// Gar's files go here.
 #include "NavDsc.h"
 #include "IDiscoveryAPI.h"
+
 typedef std::map<std::basic_string<char>, sUPnPDevice> UPnPDeviceList;
+
 using namespace WebCore;
-#endif
 
 #include <QObject>
 #include <QVariant>
@@ -45,6 +40,7 @@ public:
 
     // Debugging
     void dumpUserInterfaceMap();
+    bool m_home;
 
 private:
 
@@ -55,6 +51,7 @@ private:
     void processDeviceList(UPnPDeviceList);
     void processDevice(const QString& url, const QDomDocument& document);
     void processUIList(const QString& url, const QDomDocument& document);
+    void notifyListChanged();
     void requestCompatibleUIs(const QString&);
     QString trimElementText(const QString&);
     QString elementTextForTag(const QDomNode& parent, const QString& tag);

@@ -23,7 +23,6 @@ SOURCES += \
     browsersettings.cpp \
     ruiwebpage.cpp \
     discoveryproxy.cpp \
-    discoverystub.cpp \
     soapmessage.cpp \
     userinterface.cpp \
     userinterfacemap.cpp
@@ -36,7 +35,6 @@ HEADERS += \
     browsersettings.h \
     ruiwebpage.h \
     discoveryproxy.h \
-    discoverystub.h \
     soapmessage.h \
     userinterface.h \
     userinterfacemap.h
@@ -76,4 +74,5 @@ OTHER_FILES += \
     www/rui_elementNumber.png \
     www/rui_elementName.png \
     www/rui_arrowUp.png \
-    www/rui_arrowDown.png
+    www/rui_arrowDown.png \
+    README

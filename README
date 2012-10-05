@@ -15,3 +15,14 @@ instructions.
 
     # Make sure this points to wherever you built WebKit
     LD_LIBRARY_PATH=~/workspace/WebKit-Build/Debug/lib bin/QtRUIBrowser
+
+## Operation / Testing
+
+    Test using the CableLabs RUIServer (java mock RUI Servers, see the related README)
+    Select a RUI by clicking or entering the number via keyboard or TVRemote (View Menu)
+    Return to the Navigation Page via escape key or back button.
+
+    TODO: Scrolling, highlight current entry, and select using "select" or Enter
+
+
+

@@ -25,6 +25,34 @@ void UserInterfaceMap::addDevice(const RUIDevice& device) {
     m_deviceMap.insert(device.m_uuid, device);
 }
 
+int UserInterfaceMap::checkForRemovedDevices( const QStringList& newDeviceList )
+{
+    int deleteCount = 0;
+
+    QStringList removeList;
+
+    // Walk through our existing devices
+    QMapIterator<QString, RUIDevice> i(m_deviceMap);
+     while (i.hasNext()) {
+         i.next();
+         const RUIDevice device = i.value();
+         QString uuid = device.m_uuid;
+
+         // Locate in new device list.
+         if (!newDeviceList.contains(uuid)) {
+
+             removeList.append(uuid);
+             deleteCount++;
+         }
+     }
+
+     foreach (QString deviceUuid, removeList) {
+        removeDevice(deviceUuid);
+     }
+
+     return deleteCount;
+}
+
 void UserInterfaceMap::removeDevice(const QString& uuid) {
 
     if (m_deviceMap.contains(uuid)) {
@@ -133,20 +161,9 @@ void UserInterfaceMap::dumpToConsole()
      }
 }
 
-/*
-RUIDevice& UserInterfaceMap::deviceForServiceKey(const QString& serviceKey) {
-
-    QMapIterator<QString, RUIDevice> i(m_deviceMap);
-     while (i.hasNext()) {
-         i.next();
-         const RUIDevice device = i.value();
-
-     }
-} */
-
 QVariantList UserInterfaceMap::generateUIList()
 {
-    fprintf( stderr, "generateUIList\n");
+    //fprintf( stderr, "generateUIList\n");
     QVariantList list;
 
     m_mutex.lock();

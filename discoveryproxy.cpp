@@ -32,21 +32,16 @@ const char* service_type = "urn:schemas-upnp-org:service:RemoteUIServer:1";
 const char* service_urn = "urn:upnp-org:serviceId:RemoteUIServer";
 
 DiscoveryProxy::DiscoveryProxy()
-    : m_soapHttp(this), m_http(this)
+    : m_home(false), m_soapHttp(this), m_http(this)
 {
     // Connect signals to slots.
     connect(&m_http, SIGNAL(finished(QNetworkReply*)), this, SLOT(httpReply(QNetworkReply*)));
     connect(&m_soapHttp, SIGNAL(finished(QNetworkReply*)), this, SLOT(soapHttpReply(QNetworkReply*)));
     connect(this, SIGNAL(ruiDeviceAvailable(QString)), this, SLOT(requestDeviceDescription(QString)));
 
-#ifdef DISCOVERY_STUB
-    UPnPDeviceList deviceList = DiscoveryStub::Instance()->startServiceDiscovery(service_type, this );
-    processServerList(deviceList);
-#else
-// Start real discovery
+    // Start discovery
     UPnPDeviceList deviceList = NavDsc::getInstance()->startUPnPInternalDiscovery(service_type, this );
     processDeviceList(deviceList);
-#endif
 }
 
 // Here with an updated server list from the Disovery module (callback)
@@ -77,11 +72,31 @@ void DiscoveryProxy::processDeviceList(UPnPDeviceList deviceList)
 
     fprintf(stderr,"\nServer List Update:\n");
 
+    QStringList devices;
+
+    // Request device descriptions
     for (p = deviceList.begin(); p!=deviceList.end(); ++p) {
 
         UPnPDevice device = p->second;
         fprintf(stderr,"RUI Server: %s -> %s\n", device.friendlyName.c_str(), device.descURL.c_str());
         emit ruiDeviceAvailable(QString(device.descURL.c_str()));
+
+        devices.append(QString(device.uuid.c_str()));
+    }
+
+    // Check for deletions
+    int deleteCount = m_userInterfaceMap.checkForRemovedDevices(devices);
+
+    if (deleteCount > 0) {
+        notifyListChanged();
+    }
+}
+
+void DiscoveryProxy::notifyListChanged()
+{
+    if (m_home) {
+        fprintf( stderr, "Notify JavaScript (rui list changed)\n");
+        emit ruiListNotification();
     }
 }
 
@@ -138,7 +153,7 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
 
                     ruiDevice.m_serviceList.append(ruiService);
 
-                    fprintf( stderr, "controlURL: %s\n", ruiService.m_controlURL.toAscii().data());
+                    fprintf( stderr, "Request Compatible UIs: %s\n", ruiService.m_controlURL.toAscii().data());
                     requestCompatibleUIs(ruiService.m_controlURL);
                 }
 
@@ -165,6 +180,8 @@ void DiscoveryProxy::processUIList(const QString& url, const QDomDocument& docum
 
     QString serviceKey = url;
     QList<RUIInterface> serviceUIs;
+
+    fprintf(stderr, "Processing UI List: %s\n", url.toAscii().data());
 
     QDomNodeList uiList = document.elementsByTagName("ui");
 
@@ -230,8 +247,7 @@ void DiscoveryProxy::processUIList(const QString& url, const QDomDocument& docum
 
     m_userInterfaceMap.addServiceUIs(serviceKey, serviceUIs);
 
-    fprintf( stderr, "emitting ruiListNotification\n");
-    emit ruiListNotification();
+    notifyListChanged();
 }
 
 
@@ -246,7 +262,7 @@ void DiscoveryProxy::requestCompatibleUIs(const QString& url)
 
     QString xml = soapMessage.message();
 
-    fprintf( stderr, "soap message:\n%s\n", xml.toAscii().data());
+    //fprintf( stderr, "soap message:\n%s\n", xml.toAscii().data());
 
     QNetworkRequest networkReq;
     networkReq.setHeader(QNetworkRequest::ContentTypeHeader, QLatin1String("text/xml;charset=utf-8"));
@@ -265,7 +281,7 @@ void DiscoveryProxy::httpReply(QNetworkReply* reply)
 
     QString xml(reply->readAll());
     QString url = reply->url().toString();
-    fprintf( stderr, "http reply from url: %s\n%s\n", url.toAscii().data(),xml.toAscii().data());
+    //fprintf( stderr, "http reply from url: %s\n%s\n", url.toAscii().data(),xml.toAscii().data());
 
     // Parse the reply, create document
     QString errorMessage;
@@ -297,7 +313,7 @@ void DiscoveryProxy::soapHttpReply(QNetworkReply* reply)
     QString xml(reply->readAll());
 
     QString url = reply->url().toString();
-    fprintf( stderr, "DiscoveryProxy::soapHttpReply from url: %s\n%s\n", url.toAscii().data(),xml.toAscii().data());
+    //fprintf( stderr, "DiscoveryProxy::soapHttpReply from url: %s\n%s\n", url.toAscii().data(),xml.toAscii().data());
 
     // Parse the reply, create document
     QString errorMessage;

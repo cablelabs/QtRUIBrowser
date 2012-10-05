@@ -206,6 +206,7 @@ public:
     void removeDevice(const QString& uuid);
     void addServiceUIs(const QString& serviceKey, const QList<RUIInterface>& list);
     void removeServiceUIs(const QString& serviceKey);
+    int checkForRemovedDevices( const QStringList& newDeviceList );
 
     QVariantList generateUIList();
 

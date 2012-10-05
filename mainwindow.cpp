@@ -122,8 +122,9 @@ void MainWindow::init()
 
     // Connect proxy load signals
     attachProxyObject();
+    connect(m_page->mainFrame(), SIGNAL(loadStarted()), this, SLOT(onLoadStarted()));
     connect( m_view, SIGNAL(loadFinished(bool)), this, SLOT(onPageLoaded(bool)) );
-    connect( m_page->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(onJavaScriptWindowObjectCleared()) );    
+    connect( m_page->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(onJavaScriptWindowObjectCleared()) );
 
     // Temp for testing.
     QTimer::singleShot(1000, this, SLOT(updateServerList()));
@@ -173,7 +174,6 @@ void MainWindow::buildUI()
 
         connect(m_page->mainFrame(), SIGNAL(urlChanged(QUrl)), this, SLOT(setAddressUrl(QUrl)));
         connect(m_page, SIGNAL(loadProgress(int)), m_urlEdit, SLOT(setProgress(int)));
-        connect(m_page->mainFrame(), SIGNAL(loadStarted()), this, SLOT(onLoadStarted()));
         connect(m_page->mainFrame(), SIGNAL(iconChanged()), this, SLOT(onIconChanged()));
     }
 
@@ -366,9 +366,12 @@ void MainWindow::onIconChanged()
 
 void MainWindow::onLoadStarted()
 {
-#ifndef QT_NO_INPUTDIALOG
-    m_urlEdit->setPageIcon(QIcon());
-#endif
+    if (m_browserSettings->hasUrlEdit) {
+        m_urlEdit->setPageIcon(QIcon());
+    }
+
+    //fprintf(stderr,"onLoadStarted. (m_home=false)\n");
+    m_discoveryProxy->m_home = false;
 }
 
 void MainWindow::onTitleChanged(const QString& title)
@@ -432,6 +435,8 @@ void MainWindow::attachProxyObject()
 {
     m_page->mainFrame()->addToJavaScriptWindowObject( QString("discoveryProxy"), m_discoveryProxy );
     //m_page->mainFrame()->evaluateJavaScript("proxyConnect(); null");
+    m_discoveryProxy->m_home = true;
+    //fprintf(stderr,"attachProxyObject. (m_home=true)");
 }
 
 // Here when the global window object of the JavaScript environment is cleared, e.g., before starting a new load
@@ -444,6 +449,11 @@ void MainWindow::onJavaScriptWindowObjectCleared()
 
     if ( url.compare(rui_home) == 0) {
         attachProxyObject();
+        //fprintf(stderr,"onJavaScriptWindowObjectCleared - Attaching proxy object\n");
+    } else {
+        m_discoveryProxy->m_home = false;
+        //fprintf(stderr,"onJavaScriptWindowObjectCleared. (m_home=false)");
+
     }
 }
 
@@ -454,6 +464,9 @@ void MainWindow::onPageLoaded(bool ok)
     if (ok) {
 
         QString url = m_view->url().toString();
-        //fprintf(stderr,"onPageLoaded: %s\n", url.toAscii().data());
+
+        m_discoveryProxy->m_home = (url.compare(rui_home) == 0);
+
+        fprintf(stderr,"onPageLoaded: %s (m_home = %s)\n", url.toAscii().data(), m_discoveryProxy->m_home ? "true" : "false");
     }
 }
