@@ -12,6 +12,7 @@
 
 #include "userinterfacemap.h"
 #include <QMap>
+#include <QUrl>
 #include <stdio.h>
 
 
@@ -25,6 +26,12 @@ void UserInterfaceMap::addDevice(const RUIDevice& device) {
     m_deviceMap.insert(device.m_uuid, device);
 }
 
+bool UserInterfaceMap::deviceExists(const QString& uuid) {
+   return m_deviceMap.contains(uuid);
+}
+
+// Note that we do not specifically track root devices, the ones that are discoverable. So we store the
+// root device uuid for each device recorded (ones that support RUI service).
 int UserInterfaceMap::checkForRemovedDevices( const QStringList& newDeviceList )
 {
     int deleteCount = 0;
@@ -36,12 +43,12 @@ int UserInterfaceMap::checkForRemovedDevices( const QStringList& newDeviceList )
      while (i.hasNext()) {
          i.next();
          const RUIDevice device = i.value();
-         QString uuid = device.m_uuid;
 
-         // Locate in new device list.
-         if (!newDeviceList.contains(uuid)) {
+         // See if this device's rootDevice is contained in the new list.
+         if (!newDeviceList.contains(device.m_rootDeviceUuid)) {
 
-             removeList.append(uuid);
+             // Remove this device (could be root or child)
+             removeList.append(device.m_uuid);
              deleteCount++;
          }
      }
@@ -68,6 +75,9 @@ void UserInterfaceMap::removeDevice(const QString& uuid) {
             QString serviceKey = service.m_controlURL;
             removeServiceUIs(serviceKey);
         }
+
+        fprintf(stderr," - Removing device: %s [%s] %s\n", uuid.toAscii().data(), device.m_baseURL.toAscii().data(), device.m_friendlyName.toAscii().data());
+
     }
 
     m_deviceMap.remove(uuid);
@@ -159,6 +169,16 @@ void UserInterfaceMap::dumpToConsole()
              }
          }
      }
+
+     // Dump Transport Server List
+     fprintf(stderr,"\n\nTransport Server List [%d]\n\n", m_transportServers.count());
+
+     QMapIterator<QString, QString> iter_rts(m_transportServers);
+     while (iter_rts.hasNext()) {
+          iter_rts.next();
+          const QString server = iter_rts.key();
+          fprintf( stderr,"- %s\n", server.toAscii().data());
+    }
 }
 
 QVariantList UserInterfaceMap::generateUIList()
@@ -167,6 +187,8 @@ QVariantList UserInterfaceMap::generateUIList()
     QVariantList list;
 
     m_mutex.lock();
+
+    m_transportServers.clear();
 
     QMapIterator<QString, QList<RUIInterface> > i(m_serviceUIs);
     while (i.hasNext()) {
@@ -180,6 +202,26 @@ QVariantList UserInterfaceMap::generateUIList()
 
             RUIInterface interface = iterator.next();
             list.append( interface.toMap());
+
+            // Add RUI base URIs to the transport server map.
+            QListIterator<RUIProtocol> iter_protocol(interface.m_protocolList);
+            while (iter_protocol.hasNext()) {
+
+                RUIProtocol protocol = iter_protocol.next();
+
+                QListIterator<QString> iter_uri(protocol.m_uriList);
+                while (iter_uri.hasNext()) {
+
+                    QString uri = iter_uri.next();
+                    QUrl qurl(uri);
+                    QString host = qurl.host();
+                    m_transportServers.insert(host, host);
+                    if (m_transportServers.contains(host) == false) {
+                        fprintf(stderr,"Failed to add %s to map. Count: %d",
+                                host.toAscii().data(), m_transportServers.count());
+                    }
+                }
+            }
         }
     }
 
@@ -187,6 +229,16 @@ QVariantList UserInterfaceMap::generateUIList()
 
     return list;
 }
+
+bool UserInterfaceMap::isHostRUITransportServer( const QString& host )
+{
+    bool isRTS;
+
+    isRTS = m_transportServers.contains(host);
+
+    return isRTS;
+}
+
 
 
 

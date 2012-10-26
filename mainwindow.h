@@ -16,7 +16,8 @@
 #include <QMainWindow>
 #include <QStringListModel>
 #include <QToolBar>
-#include <QWebView>
+//#include <QWebView>
+#include "qwebview.h"
 #include "discoveryproxy.h"
 
 class LocationEdit;
@@ -44,6 +45,7 @@ protected slots:
     void toggleNavigationBar(bool on);
     void dumpUserInterfaceMap();
     void updateServerList();
+    void dumpHtml();
 
     void onIconChanged();
     void onLoadStarted();

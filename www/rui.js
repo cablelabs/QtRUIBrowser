@@ -23,7 +23,7 @@ function refreshRUIList() {
 
     // Scroll up arrow
     innerHTML += "<div id='navHeader' class='arrowHidden' >";
-    innerHTML += "<img src='qrc:/www/rui_arrowUp.png' />"
+    //innerHTML += "<img src='qrc:/www/rui_arrowUp.png' />"
     innerHTML += "</div>";
 
     // There can be multiple urls for a given ui, which will result in additional divs
@@ -31,14 +31,18 @@ function refreshRUIList() {
 
     for (var i=0; i < count; i++) {
 
+        var index = i;
+        //discoveryProxy.console("JS: UI(" + index + ")\n");
+
         var generateUIDiv = function(ui) {
 
             var icon = selectIcon(ui);
             var iconURL = icon.url;
+            var elementHeight = 86;
 
             // TODO: read style sheet instead of using constant
-            var paddingTop = (172 - icon.height) / 2;
-            var paddingLeft = (172 - icon.width) / 2;
+            var paddingTop = (elementHeight - icon.height) / 2;
+            var paddingLeft = (elementHeight - icon.width) / 2;
 
             var html = "";
             var displayNumber = divCount + 1;
@@ -46,7 +50,6 @@ function refreshRUIList() {
             // Outer div
             html += "<div class='uiElement' onclick='selectUI(" + displayNumber + ")'>";
             {
-
                 html += "<div class='uiElementNumber'>";
                 html += displayNumber;
                 html += '</div>';
@@ -71,23 +74,31 @@ function refreshRUIList() {
             return html;
         }
 
-        innerHTML += generateUIDiv(uiList[i]);
+        innerHTML += generateUIDiv(uiList[index]);
     }
 
     // Scroll down arrow
     innerHTML += "<div id='navFooter' class='arrowHidden' >";
-    innerHTML += "<img src='qrc:/www/rui_arrowDown.png' />"
+    //innerHTML += "<img src='qrc:/www/rui_arrowDown.png' />"
     innerHTML += "</div>";
 
-    // discoveryProxy.console(innerHTML);
+    //discoveryProxy.console("InnerHTML: " + innerHTML);
 
     document.getElementById('navUI').innerHTML = innerHTML;
 }
 
 function selectIcon(ui) {
 
-    // TODO: Look for best size. For now, return the first icon url.
-    return ui.iconList[0];
+    if (ui.iconList.length > 0) {
+        return ui.iconList[0];
+    }
+
+    var icon = new Object;
+    icon.width = 0;
+    icon.height = 0;
+    icon.url = "";
+
+    return icon;
 }
 
 window.onload = pageLoaded;

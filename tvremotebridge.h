@@ -13,7 +13,8 @@
 #ifndef TVREMOTEBRIDGE_H
 #define TVREMOTEBRIDGE_H
 
-#include <QWebPage>
+//#include <QWebPage>
+#include "qwebpage.h"
 
 class MainWindow;
 

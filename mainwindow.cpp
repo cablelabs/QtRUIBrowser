@@ -25,17 +25,19 @@
 #include <QKeyEvent>
 #include <QAction>
 #include <QSplitter>
-#include <QWebView>
-#include <QWebPage>
+//#include <QWebView>
+#include "qwebview.h"
+//#include <QWebPage>
+#include "qwebpage.h"
 #include <QCompleter>
 #include <QUrl>
 #include <QTimer>
 
 #define TV_REMOTE_SIMULATOR 1
 
-#define RUI_WIDTH 880
+#define RUI_WIDTH 800
 #define REMOTE_WIDTH 246
-#define RUI_HEIGHT 715
+#define RUI_HEIGHT 600
 
 const char* rui_home = "qrc:/www/index.html";
 
@@ -58,7 +60,7 @@ void MainWindow::init()
     // We house the RUI webview and the TV Remote webview in a splitter.
     QSplitter* splitter = new QSplitter(Qt::Horizontal, this);
     setCentralWidget(splitter);
-    width += REMOTE_WIDTH;
+    //width += REMOTE_WIDTH;
 
     // RUI webview
     m_page = new RUIWebPage(this);
@@ -118,7 +120,7 @@ void MainWindow::init()
         resize(width, height);
 
     // Discovery Proxy
-    m_discoveryProxy = new DiscoveryProxy;
+    m_discoveryProxy = DiscoveryProxy::Instance();
 
     // Connect proxy load signals
     attachProxyObject();
@@ -224,8 +226,10 @@ void MainWindow::createMenuBar()
     showNavigationBar->setChecked(m_browserSettings->hasNavigationBar);
 
     QMenu* debugMenu = menuBar()->addMenu("&Debug");
-    debugMenu->addAction("Dump UIs", this, SLOT(dumpUserInterfaceMap()));
+    debugMenu->addAction("Dump User Interface Map", this, SLOT(dumpUserInterfaceMap()));
     debugMenu->addAction("Update Server List", this, SLOT(updateServerList()));
+    debugMenu->addSeparator();
+    debugMenu->addAction("Dump HTML", this, SLOT(dumpHtml()));
 }
 
 void MainWindow::home()
@@ -327,6 +331,12 @@ void MainWindow::changeLocation()
 void MainWindow::updateServerList()
 {
     //DiscoveryStub::Instance()->updateServerList();
+}
+
+void MainWindow::dumpHtml()
+{
+    QString html = m_page->mainFrame()->toHtml();
+    fprintf(stderr,"\nHTML:\n%s\n", html.toAscii().data());
 }
 
 void MainWindow::dumpUserInterfaceMap()
@@ -467,6 +477,6 @@ void MainWindow::onPageLoaded(bool ok)
 
         m_discoveryProxy->m_home = (url.compare(rui_home) == 0);
 
-        fprintf(stderr,"onPageLoaded: %s (m_home = %s)\n", url.toAscii().data(), m_discoveryProxy->m_home ? "true" : "false");
+        //fprintf(stderr,"onPageLoaded: %s (m_home = %s)\n", url.toAscii().data(), m_discoveryProxy->m_home ? "true" : "false");
     }
 }

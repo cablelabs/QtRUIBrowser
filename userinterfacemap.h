@@ -182,12 +182,14 @@ public:
         m_baseURL = other.m_baseURL;
         m_uuid = other.m_uuid;
         m_serviceList = other.m_serviceList;
+        m_rootDeviceUuid = other.m_rootDeviceUuid;
         return *this;
     }
 
     QString m_friendlyName;
     QString m_baseURL;
     QString m_uuid;
+    QString m_rootDeviceUuid;
 
     // We are only interested in a service of type urn:schemas-upnp-org:service:RemoteUIServer:1
     // There should be 0 or 1 instances of this service type per device, but allow for multiples.
@@ -204,9 +206,11 @@ public:
 
     void addDevice(const RUIDevice& device);
     void removeDevice(const QString& uuid);
+    bool deviceExists(const QString& uuid);
     void addServiceUIs(const QString& serviceKey, const QList<RUIInterface>& list);
     void removeServiceUIs(const QString& serviceKey);
     int checkForRemovedDevices( const QStringList& newDeviceList );
+    bool isHostRUITransportServer( const QString& hostURL );
 
     QVariantList generateUIList();
 
@@ -218,6 +222,7 @@ private:
     QMap<QString, RUIDevice> m_deviceMap;
     QMap<QString, QList<RUIInterface> > m_serviceUIs;
     QMutex m_mutex;
+    QMap<QString, QString> m_transportServers;
     
 signals:
 

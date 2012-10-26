@@ -75,4 +75,8 @@ OTHER_FILES += \
     www/rui_elementName.png \
     www/rui_arrowUp.png \
     www/rui_arrowDown.png \
-    README
+    README \
+    www/rui_missingIcon.png \
+    www/rui_elementNumber2.png \
+    www/rui_elementName2.png \
+    www/rui_background2.png

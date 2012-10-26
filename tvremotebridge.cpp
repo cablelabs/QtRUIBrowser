@@ -14,11 +14,13 @@
 #include "mainwindow.h"
 #include "stdlib.h"
 #include "stdio.h"
-#include <QWebFrame>
+//#include <QWebFrame>
+#include "qwebframe.h"
 #include <QApplication>
 #include <QEvent>
 #include <QKeyEvent>
-#include <QWebElement>
+//#include <QWebElement>
+#include "qwebelement.h"
 
 TVRemoteBridge::TVRemoteBridge( MainWindow* mainWindow, QWebPage* pageMain, QWebPage* pageRemote )
     :m_mainWindow(mainWindow), m_pageMain(pageMain), m_pageRemote(pageRemote)

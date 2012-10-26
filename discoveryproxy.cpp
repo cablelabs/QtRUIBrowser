@@ -25,6 +25,10 @@
 #include <QMap>
 #include <QVariant>
 #include <QVariantMap>
+#include <QTextDocument>
+
+DiscoveryProxy* DiscoveryProxy::m_pInstance = NULL;
+
 
 const char* xmlns_dlna = "xmlns:dlna";
 const char* schema_device = "urn:schemas-dlna-org:device-1-0";
@@ -78,7 +82,9 @@ void DiscoveryProxy::processDeviceList(UPnPDeviceList deviceList)
     for (p = deviceList.begin(); p!=deviceList.end(); ++p) {
 
         UPnPDevice device = p->second;
-        fprintf(stderr,"RUI Server: %s -> %s\n", device.friendlyName.c_str(), device.descURL.c_str());
+        fprintf(stderr," - Server: %s -> %s [%s]\n", device.friendlyName.c_str(), device.descURL.c_str(), device.uuid.c_str());
+
+        // Process device on main thread.
         emit ruiDeviceAvailable(QString(device.descURL.c_str()));
 
         devices.append(QString(device.uuid.c_str()));
@@ -100,15 +106,18 @@ void DiscoveryProxy::notifyListChanged()
     }
 }
 
-// Here with a new root device description.
+// Here with a new root device description. Process the root device and any nested devices.
 void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& document)
 {
     QString baseURL = url.left(url.lastIndexOf("/"));
 
     // A device can have multiple devices and each device can have multiple services.
-    // Filter by the device/service pairs we are interested in.
+    // Filter by the device/service pairs we are interested in. Record the uuid of the root device
+    // for all devices (including the root) so we can determine which devices to delete on a removal.
 
     QDomNodeList deviceList = document.elementsByTagName("device");
+
+    QString rootDeviceUuid;
 
     for (int i=0; i < deviceList.count(); i++) {
 
@@ -116,8 +125,16 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
 
         RUIDevice ruiDevice;
 
+        QString uuid = trimElementText(device.firstChildElement("UDN").text());
+
+        if (i == 0) {
+
+            rootDeviceUuid = uuid;
+        }
+
         ruiDevice.m_friendlyName = trimElementText(device.firstChildElement("friendlyName").text());
-        ruiDevice.m_uuid = trimElementText(device.firstChildElement("UDN").text());
+        ruiDevice.m_uuid = uuid;
+        ruiDevice.m_rootDeviceUuid = rootDeviceUuid;
         ruiDevice.m_baseURL = baseURL;
 
         // We are only interested devices that implement the the RemoteUIServer service.
@@ -153,7 +170,7 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
 
                     ruiDevice.m_serviceList.append(ruiService);
 
-                    fprintf( stderr, "Request Compatible UIs: %s\n", ruiService.m_controlURL.toAscii().data());
+                    //fprintf( stderr, "Request Compatible UIs: %s\n", ruiService.m_controlURL.toAscii().data());
                     requestCompatibleUIs(ruiService.m_controlURL);
                 }
 
@@ -167,9 +184,10 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
             m_userInterfaceMap.addDevice(ruiDevice);
 
         } else {
-
-            // Unlikey event that an existing device no longer provides a service
-            m_userInterfaceMap.removeDevice(ruiDevice.m_uuid);
+            if ( m_userInterfaceMap.deviceExists(ruiDevice.m_uuid)) {
+                fprintf(stderr," - Removing device - no longer provides RUI service: %s - %s\n", ruiDevice.m_uuid.toAscii().data(), url.toAscii().data());
+                m_userInterfaceMap.removeDevice(ruiDevice.m_uuid);
+            }
         }
     }
 }
@@ -181,11 +199,13 @@ void DiscoveryProxy::processUIList(const QString& url, const QDomDocument& docum
     QString serviceKey = url;
     QList<RUIInterface> serviceUIs;
 
-    fprintf(stderr, "Processing UI List: %s\n", url.toAscii().data());
+    //fprintf(stderr, "Processing UI List: %s\n", url.toAscii().data());
 
     QDomNodeList uiList = document.elementsByTagName("ui");
 
     for (int i=0; i < uiList.count(); i++) {
+
+        bool protocolMatch = false;
 
         QDomNode ui = uiList.item(i);
         RUIInterface ruiInterface;
@@ -215,6 +235,19 @@ void DiscoveryProxy::processUIList(const QString& url, const QDomDocument& docum
                 // Loop through all of the icons for this device.
                 icon = icon.nextSiblingElement(tag).toElement();
             }
+
+        }
+
+        if (ruiInterface.m_iconList.count() == 0) {
+            RUIIcon missingIcon;
+
+            missingIcon.m_mimeType = "image/png";
+            missingIcon.m_url = "qrc:/www/rui_missingIcon.png";
+            missingIcon.m_width = "40";
+            missingIcon.m_height = "40";
+            missingIcon.m_depth = "24";
+
+            ruiInterface.m_iconList.append(missingIcon);
         }
 
         // Protocols
@@ -226,23 +259,30 @@ void DiscoveryProxy::processUIList(const QString& url, const QDomDocument& docum
 
             ruiProtocol.m_shortName = protocol.attribute("shortName");
 
-            ruiProtocol.m_protocolInfo = elementTextForTag(protocol, "protocolInfo");
+            if ( ruiProtocol.m_shortName.compare("DLNA-HTML5-1.0") == 0) {
 
-            QString uriTag = "uri";
+                protocolMatch = true;
+                ruiProtocol.m_protocolInfo = elementTextForTag(protocol, "protocolInfo");
 
-            QDomElement uri = protocol.firstChildElement(uriTag);
-            while (!uri.isNull()) {
-                ruiProtocol.m_uriList.append(trimElementText(uri.text()));
-                uri = uri.nextSiblingElement(uriTag).toElement();
+                QString uriTag = "uri";
+
+                QDomElement uri = protocol.firstChildElement(uriTag);
+                while (!uri.isNull()) {
+                    ruiProtocol.m_uriList.append(trimElementText(uri.text()));
+                    uri = uri.nextSiblingElement(uriTag).toElement();
+                }
+
+                ruiInterface.m_protocolList.append(ruiProtocol);
             }
 
-            ruiInterface.m_protocolList.append(ruiProtocol);
 
             // Loop through all of the icons for this device.
             protocol = protocol.nextSiblingElement(protocolTag).toElement();
         }
 
-        serviceUIs.append(ruiInterface);
+        if (protocolMatch) {
+            serviceUIs.append(ruiInterface);
+        }
     }
 
     m_userInterfaceMap.addServiceUIs(serviceKey, serviceUIs);
@@ -281,7 +321,9 @@ void DiscoveryProxy::httpReply(QNetworkReply* reply)
 
     QString xml(reply->readAll());
     QString url = reply->url().toString();
-    //fprintf( stderr, "http reply from url: %s\n%s\n", url.toAscii().data(),xml.toAscii().data());
+
+
+    //fprintf( stderr, "http reply (RUI Server Description) from url: %s\n%s\n", url.toAscii().data(),xml.toAscii().data());
 
     // Parse the reply, create document
     QString errorMessage;
@@ -310,7 +352,12 @@ void DiscoveryProxy::soapHttpReply(QNetworkReply* reply)
         return;
     }
 
-    QString xml(reply->readAll());
+    QString html(reply->readAll());
+    QTextDocument text;
+    text.setHtml(html);
+    QString xml = text.toPlainText();
+    //QString xml = html;
+
 
     QString url = reply->url().toString();
     //fprintf( stderr, "DiscoveryProxy::soapHttpReply from url: %s\n%s\n", url.toAscii().data(),xml.toAscii().data());
@@ -381,4 +428,20 @@ void DiscoveryProxy::console(const QString& str)
 {
     fprintf( stderr,"%s\n", str.toAscii().data());
 }
+
+DiscoveryProxy* DiscoveryProxy::Instance()
+{
+    if ( !m_pInstance )
+    {
+        m_pInstance = new DiscoveryProxy;
+    }
+
+    return m_pInstance;
+}
+
+bool DiscoveryProxy::isHostRUITransportServer(const QString& hostURL)
+{
+    return m_userInterfaceMap.isHostRUITransportServer(hostURL);
+}
+
 

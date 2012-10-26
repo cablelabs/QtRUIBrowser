@@ -1,9 +1,9 @@
 body
 {
-    background-color: Aqua;
-    background-image: url(qrc:/www/rui_background.png);
+    background-color: #004988;
+    background-image: url(qrc:/www/rui_background2.png);
     background-repeat: no-repeat;
-    width: 980px;
+    width: 800px;
 }
 
 .uiElement
@@ -16,50 +16,65 @@ body
 
 .uiElementNumber
 {
-    background-image: url(qrc:/www/rui_elementNumber.png);
+    background-image: url(qrc:/www/rui_elementNumber2.png);
     background-repeat: no-repeat;
-    width: 130px;
-    height: 115px;
+    //width: 130px;
+    //height: 115px;
+    width: 65px;
+    height: 57px;
     float: left;
     text-align: center;
     left: 0;
     top: 0;
-    font-size : 50px;
+    //font-size : 50px;
+    font-size : 25px;
     font-weight: 400;
-    padding-top: 57px;
+    //padding-top: 57px;
+    padding-top: 29px;
 }
 
 .uiElementIcon
 {
-    height:172px;
-    width: 162px;
+    //height:172px;
+    //width: 162px;
+    height:86px;
+    width: 81px;
     float: left;
     padding: 0;
     margin: 0;
-    margin-left: 10px;
+    //margin-left: 10px;
+    margin-left: 5px;
 }
 
 .uiElementName
 {
 
-    background-image: url(qrc:/www/rui_elementName.png);
+    background-image: url(qrc:/www/rui_elementName2.png);
     background-repeat: no-repeat;
-    height:172px;
-    width:798px;
+    //height:172px;
+    width:680px;
+    min-width: 700px;
+    height:86px;
+    width:400px;
     float:left;
     padding: 0;
     margin: 0;
 }
 .uiElementText
 {
-    height: 120px;
-    width:580px;
+    //height: 120px;
+    //width:580px;
+    height: 600px;
+    width:480px;
     float:left;
     padding: 0;
-    margin-left: 40px;
-    font-size : 60px;
+    //margin-left: 40px;
+    margin-left: 20px;
+    //font-size : 50px;
+    font-size : 25px;
     font-weight: 400;
-    padding-top: 53px;
+    //padding-top: 53px;
+    padding-top: 29px;
 }
 
 .arrowVisible
@@ -74,7 +89,7 @@ body
 
 #navUI
 {
-    width: 930px;
+    width: 800px;
 }
 
 #navHeader

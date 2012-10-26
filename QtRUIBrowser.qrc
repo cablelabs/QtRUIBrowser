@@ -10,5 +10,9 @@
         <file>www/rui_elementNumber.png</file>
         <file>www/rui_arrowUp.png</file>
         <file>www/rui_arrowDown.png</file>
+        <file>www/rui_missingIcon.png</file>
+        <file>www/rui_background2.png</file>
+        <file>www/rui_elementName2.png</file>
+        <file>www/rui_elementNumber2.png</file>
     </qresource>
 </RCC>

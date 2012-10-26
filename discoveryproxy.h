@@ -34,9 +34,9 @@ class DiscoveryProxy : public QObject, public IDiscoveryAPI
     Q_OBJECT
 
 public:
-    DiscoveryProxy();
+    static DiscoveryProxy* Instance();
 
-    bool isHostRUIHServer(const QString& hostURL);
+    bool isHostRUITransportServer(const QString& hostURL);
 
     // Debugging
     void dumpUserInterfaceMap();
@@ -44,6 +44,8 @@ public:
 
 private:
 
+    DiscoveryProxy();
+    static DiscoveryProxy* m_pInstance;
     UserInterfaceMap m_userInterfaceMap;
     QNetworkAccessManager m_soapHttp;
     QNetworkAccessManager m_http;
