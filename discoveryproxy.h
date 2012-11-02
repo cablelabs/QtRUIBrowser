@@ -68,6 +68,10 @@ public slots:
     // Public JavaScript API (bridge)
     QVariantList ruiList();
     void console(const QString&);
+    int scrollIndex();
+    int screenIndex();
+    void setScrollIndex(int index);
+    void setScreenIndex(int index);
 
 private slots:
 
@@ -88,6 +92,14 @@ private slots:
     // HTTP
     void httpReply(QNetworkReply*);
     void soapHttpReply(QNetworkReply*);
+
+public:
+    // JavaScript state variables
+    // These public variables are used to persist state on the navigation page, so when you return
+    // from a rui page, the last selected row and scroll position are restored.
+    int m_scrollIndex;
+    int m_screenIndex;
+
 };
 
 #endif // DISCOVERYPROXY_H

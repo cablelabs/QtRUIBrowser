@@ -11,8 +11,7 @@
         <file>www/rui_arrowUp.png</file>
         <file>www/rui_arrowDown.png</file>
         <file>www/rui_missingIcon.png</file>
-        <file>www/rui_background2.png</file>
-        <file>www/rui_elementName2.png</file>
-        <file>www/rui_elementNumber2.png</file>
+        <file>www/rui_elementNameHighlight.png</file>
+        <file>www/rui_elementNumberHighlight.png</file>
     </qresource>
 </RCC>

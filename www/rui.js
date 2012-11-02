@@ -1,24 +1,114 @@
 var uiList;
+var screenIndex = 0;    // screen relative current (highlighted) index. (0:maxPanels-1)
+var scrollIndex = 0;    // base index of screenIndex:0
+var selectIndex = 0;    // effective index of corresponding rui element (screenIndex+scrollIndex)
+var maxPanels = 4;      // max panels to be displayed (arbitrary, based on vendors screen size)
+var panelCount = 0;     // actual panels to be displayed
+var flipped = false;    // flipped == true means the 'back' elements are in front and the 'front' elements are in back
+var uiElements;         // array of innerHtml content for each rui
+var canScroll;          // uiElements.length > panelCount
+var elementHeight = 86; // based on height of background images for the elements
 
 function pageLoaded() {
 
     proxyConnect();
 
-    // Fetch initial list
+    // Restore our last known position
+    screenIndex = discoveryProxy.screenIndex();
+    scrollIndex = discoveryProxy.scrollIndex();
     refreshRUIList();
 }
 
 function proxyConnect() {
 
+    if (typeof discoveryProxy == "undefined") {
+        alert("onLoad: no discovery proxy!!");
+    }
+
     // Establish callback for ui list updates
     discoveryProxy.ruiListNotification.connect(refreshRUIList);
-    //alert("proxyConnect");
 }
 
-function refreshRUIList() {
+function updateSelected() {
+
+    var elems = document.getElementsByClassName('uiElementNumber');
+    var index;
+    var i;
+
+    for( i=0; i<elems.length; i++)  {
+
+        // Two faces per panel. Update them both.
+        index = i >> 1;
+        if (index === screenIndex) {
+            $(elems[i]).addClass('selected');
+        } else {
+            $(elems[i]).removeClass('selected');
+        }
+    }
+
+    elems = document.getElementsByClassName('uiElementName');
+    for( i=0; i<elems.length; i++)  {
+
+        // Two faces per panel. Update them both.
+        index = i >> 1;
+        if (index === screenIndex) {
+            $(elems[i]).addClass('selected');
+        } else {
+            $(elems[i]).removeClass('selected');
+        }
+    }
+}
+
+function generateRUIElements() {
 
     uiList = discoveryProxy.ruiList();
     var count = uiList.length;
+
+    uiElements = new Array();
+
+    // There can be multiple urls for a given ui, which will result in additional divs
+    var uiElementCount = 0;
+
+    for (var i=0; i < count; i++) {
+
+        var index = i;
+
+        var generateUIDiv = function(ui) {
+
+            var icon = selectIcon(ui);
+            var iconURL = icon.url;
+
+            // TODO: read style sheet instead of using constant
+            var paddingTop = (elementHeight - icon.height) / 2;
+            var paddingLeft = (elementHeight - icon.width) / 2;
+
+            var displayNumber = (uiElementCount + 1) % 10;
+
+            var elementInnerHtml = "<div class='uiElementNumber'>";
+            elementInnerHtml += displayNumber;
+            elementInnerHtml += '</div>';
+
+            elementInnerHtml += "<div class='uiElementName'>";
+            elementInnerHtml += "<div class='uiElementIcon' ";
+            elementInnerHtml += "style='padding-left:" + paddingLeft + "; padding-top: " + paddingTop + ";'>";
+            elementInnerHtml += "<img src='" + iconURL + "'/>";
+            elementInnerHtml += "</div>";
+
+            elementInnerHtml += "<div class='uiElementText'>";
+            elementInnerHtml += ui.name;
+            elementInnerHtml += "</div>";
+            elementInnerHtml += "</div>";
+
+            uiElements[uiElementCount] = elementInnerHtml;
+        }
+        generateUIDiv(uiList[index]);
+
+        uiElementCount++;
+    }
+}
+
+function generatePage() {
+
     var innerHTML = "";
 
     // Scroll up arrow
@@ -26,55 +116,28 @@ function refreshRUIList() {
     //innerHTML += "<img src='qrc:/www/rui_arrowUp.png' />"
     innerHTML += "</div>";
 
-    // There can be multiple urls for a given ui, which will result in additional divs
-    var divCount = 0;
+    // Determine how many panels we will display - and whether we can scroll or not.
+    panelCount = maxPanels;
+    canScroll = true;
+    if (uiElements.length <= panelCount) {
+        panelCount = uiElements.length;
+        canScroll = false;
+    }
 
-    for (var i=0; i < count; i++) {
+    for (var i=0; i < panelCount; i++) {
 
-        var index = i;
-        //discoveryProxy.console("JS: UI(" + index + ")\n");
+        var yPos = 20 + (i*elementHeight);
 
-        var generateUIDiv = function(ui) {
+        // Panel div
+        innerHTML += "<div class='panel' onclick='selectPanel("+i+")'>";
 
-            var icon = selectIcon(ui);
-            var iconURL = icon.url;
-            var elementHeight = 86;
+        // Front div. RUI element will be inserted later.
+        innerHTML += "<div class='uiElement front' style='top: "+yPos+"px;'></div>";
 
-            // TODO: read style sheet instead of using constant
-            var paddingTop = (elementHeight - icon.height) / 2;
-            var paddingLeft = (elementHeight - icon.width) / 2;
+        // Back div. RUI element will be inserted later.
+        innerHTML += "<div class='uiElement back' style='top: "+yPos+"px;'></div>";
 
-            var html = "";
-            var displayNumber = divCount + 1;
-
-            // Outer div
-            html += "<div class='uiElement' onclick='selectUI(" + displayNumber + ")'>";
-            {
-                html += "<div class='uiElementNumber'>";
-                html += displayNumber;
-                html += '</div>';
-                divCount++;
-
-
-                html += "<div class='uiElementName'>";
-                {
-                    html += "<div class='uiElementIcon' ";
-                    html += "style='padding-left:" + paddingLeft + "; padding-top: " + paddingTop + ";'>";
-                    html += "<img src='" + iconURL + "'/>";
-                    html += "</div>";
-
-                    html += "<div class='uiElementText'>";
-                    html += ui.name;
-                    html += "</div>";
-                }
-                html += "</div>";
-
-            }
-            html += "</div>";
-            return html;
-        }
-
-        innerHTML += generateUIDiv(uiList[index]);
+        innerHTML += "</div>";
     }
 
     // Scroll down arrow
@@ -82,11 +145,39 @@ function refreshRUIList() {
     //innerHTML += "<img src='qrc:/www/rui_arrowDown.png' />"
     innerHTML += "</div>";
 
-    //discoveryProxy.console("InnerHTML: " + innerHTML);
-
     document.getElementById('navUI').innerHTML = innerHTML;
 }
 
+// Load either the front or back faces.
+// This is required for an initial load and prior to a flip animation.
+function loadPanelElements(face, start) {
+
+    var elems = document.getElementsByClassName(face);
+    for(i=0; i<elems.length; i++)  {
+        var html = uiElements[start+i];
+        elems[i].innerHTML = html;
+    }
+}
+
+// Here with an update list of RUIs
+function refreshRUIList() {
+
+    // Array of innerHtml elements
+    generateRUIElements();
+
+    // Page HTML with empty elements
+    generatePage();
+
+    // Insert element HTML
+    loadPanelElements('front', scrollIndex);
+    loadPanelElements('back', scrollIndex);
+
+    // Set selection
+    updateSelected();
+}
+
+// TODO: Select from the list based on best size match.
+// For now just grab the first one.
 function selectIcon(ui) {
 
     if (ui.iconList.length > 0) {
@@ -96,12 +187,60 @@ function selectIcon(ui) {
     var icon = new Object;
     icon.width = 0;
     icon.height = 0;
-    icon.url = "";
+    icon.url = "qrc:/www/rui_missingIcon.png";
 
     return icon;
 }
 
-window.onload = pageLoaded;
+function scrollUp() {
+
+    // Populate back facing panes before we animate flip
+    scrollIndex--;
+    var face = flipped ? 'front' : 'back';
+    loadPanelElements(face, scrollIndex);
+
+    flipped = !flipped;
+    var elems = document.getElementsByClassName('panel');
+    for(i=0; i<elems.length; i++)  {
+        if ( flipped ) {
+            //alert("add flip");
+            $(elems[i]).addClass('flip');
+        } else {
+            //alert("remove flip");
+            $(elems[i]).removeClass('flip');
+        }
+    }
+}
+
+function scrollDown() {
+
+    // Populate back facing panes before we animate flip
+    scrollIndex++;
+    var face = flipped ? 'front' : 'back';
+    loadPanelElements(face, scrollIndex);
+
+    flipped = !flipped;
+
+    var elems = document.getElementsByClassName('panel');
+    for(i=0; i<elems.length; i++)  {
+        if ( flipped ) {
+            //alert("add flip");
+            $(elems[i]).addClass('flip');
+        } else {
+            //alert("remove flip");
+            $(elems[i]).removeClass('flip');
+        }
+    }
+}
+
+function updateScreenPosition() {
+    selectIndex = screenIndex + scrollIndex;
+    updateSelected();
+
+    // Save our state.
+    discoveryProxy.setScrollIndex(scrollIndex);
+    discoveryProxy.setScreenIndex(screenIndex);
+}
 
 function onKeydown(ev) {
 
@@ -109,12 +248,25 @@ function onKeydown(ev) {
 
     switch(key) {
 
+    case 13:
+        // enter
+        selectUI(selectIndex)
+        break;
+
     case 37:
         // left arrow
         break;
 
     case 38:
         // up arrow
+        if (screenIndex > 0) {
+            screenIndex--;
+            updateScreenPosition();
+        } else if (canScroll && (scrollIndex > 0)) {
+            scrollUp();
+            updateScreenPosition();
+        }
+        ev.preventDefault();
         break;
 
     case 39:
@@ -123,6 +275,14 @@ function onKeydown(ev) {
 
     case 40:
         // down arrow
+        if (screenIndex < (panelCount-1)) {
+            screenIndex++;
+            updateScreenPosition();
+        } else if (canScroll && (scrollIndex < (uiElements.length-panelCount))) {
+            scrollDown();
+            updateScreenPosition();
+        }
+        ev.preventDefault();
         break;
 
     case 27:
@@ -133,31 +293,48 @@ function onKeydown(ev) {
 
         if ( key >= 48 && key <= 57 ) {
             var numKey = key - 48;
-            selectUI(numKey);
+            var index = numKeyToIndex(numKey);
+            if (index >= 0 && index < uiList.length)
+            selectUI(index);
         } else {
 
-            //alert(key);
+            alert(key);
         }
 
         break;
-
     }
 }
 
-function selectUI(numKey) {
+function numKeyToIndex(numKey) {
 
-    // numKey is one based.
-    var index = numKey;
-    if (index == 0)
-        index = 10;
-    index--;
+    for (var i=0; i < panelCount; i++) {
+
+        var index = scrollIndex + i;
+        var displayIndex = (index+1) % 10;
+        if (numKey === displayIndex) {
+            return index;
+        }
+    }
+
+    return -1;
+}
+
+// Here when a RUI panel was clicked.
+function selectPanel(index) {
+    screenIndex = index;
+    updateScreenPosition();
+    selectUI(selectIndex)
+}
+
+function selectUI(index) {
 
     if (index < uiList.length) {
 
         var uri = uiList[index].protocolList[0].uriList[0];
 
-        discoveryProxy.console("select ui: " + index + "  " + uiList[index].name + "  url: " + uri );
+        //discoveryProxy.console("select ui: " + index + "  " + uiList[index].name + "  url: " + uri );
         window.location.href = uri;
     }
 }
 
+window.onload = pageLoaded;

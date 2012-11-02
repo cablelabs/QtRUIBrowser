@@ -44,7 +44,6 @@ protected slots:
     void toggleTVRemote(bool on);
     void toggleNavigationBar(bool on);
     void dumpUserInterfaceMap();
-    void updateServerList();
     void dumpHtml();
 
     void onIconChanged();

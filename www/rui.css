@@ -1,14 +1,14 @@
 body
 {
     background-color: #004988;
-    background-image: url(qrc:/www/rui_background2.png);
+    background-image: url(qrc:/www/rui_background.png);
     background-repeat: no-repeat;
     width: 800px;
 }
 
 .uiElement
 {
-    background-color: Yellow;
+    //background-color: Yellow;
     background-repeat: no-repeat;
     font-family : Sans-Serif;
     color: White;
@@ -16,7 +16,7 @@ body
 
 .uiElementNumber
 {
-    background-image: url(qrc:/www/rui_elementNumber2.png);
+    background-image: url(qrc:/www/rui_elementNumber.png);
     background-repeat: no-repeat;
     //width: 130px;
     //height: 115px;
@@ -31,6 +31,11 @@ body
     font-weight: 400;
     //padding-top: 57px;
     padding-top: 29px;
+}
+
+.uiElementNumber.selected
+{
+    background-image: url(qrc:/www/rui_elementNumberHighlight.png);
 }
 
 .uiElementIcon
@@ -49,7 +54,7 @@ body
 .uiElementName
 {
 
-    background-image: url(qrc:/www/rui_elementName2.png);
+    background-image: url(qrc:/www/rui_elementName.png);
     background-repeat: no-repeat;
     //height:172px;
     width:680px;
@@ -60,6 +65,11 @@ body
     padding: 0;
     margin: 0;
 }
+.uiElementName.selected
+{
+    background-image: url(qrc:/www/rui_elementNameHighlight.png);
+}
+
 .uiElementText
 {
     //height: 120px;
@@ -118,3 +128,73 @@ body
     position: relative;
     left: -114px;
 }
+
+// panel flip stuff
+.panel {
+    float: left;
+    width: 1000px;
+    height: 172px;
+    //margin: 20px;
+    position: relative;
+
+    -webkit-perspective: 600px;
+    -moz-perspective: 600px;
+}
+.panel .front {
+    float: none;
+    position: absolute;
+    //top: 0;
+    //left: 0;
+
+    -webkit-transform: rotateX(0deg) rotateY(0deg);
+    -webkit-transform-style: preserve-3d;
+    -webkit-backface-visibility: hidden;
+
+    -moz-transform: rotateX(0deg) rotateY(0deg);
+    -moz-transform-style: preserve-3d;
+    -moz-backface-visibility: hidden;
+
+    -webkit-transform: rotateX(0deg);
+    -moz-transform: rotateX(0deg);
+}
+.panel.flip .front {
+    z-index: 900;
+
+    -webkit-transform: rotateY(180deg);
+    -moz-transform: rotateY(180deg);
+
+    -webkit-transform: rotateX(180deg);
+    -moz-transform: rotateX(180deg);
+}
+
+.panel .back {
+    z-index: 800;
+    float: none;
+    position: absolute;
+
+    -webkit-transform: rotateY(-180deg);
+    -webkit-transform-style: preserve-3d;
+    -webkit-backface-visibility: hidden;
+
+    -moz-transform: rotateY(-180deg);
+    -moz-transform-style: preserve-3d;
+    -moz-backface-visibility: hidden;
+
+    -webkit-transform: rotateX(-180deg);
+    -moz-transform: rotateX(-180deg);
+}
+
+.panel.flip .back {
+    z-index: 1000;
+
+    -webkit-transform: rotateX(0deg) rotateY(0deg);
+    -moz-transform: rotateX(0deg) rotateY(0deg);
+}
+
+.front, .back {
+    /* -- transition is the magic sauce for animation -- */
+    -moz-transition: all .5s ease-in-out;
+    -webkit-transition: all .5s ease-in-out;
+    transition: all .5s ease-in-out;
+}
+

@@ -127,9 +127,6 @@ void MainWindow::init()
     connect(m_page->mainFrame(), SIGNAL(loadStarted()), this, SLOT(onLoadStarted()));
     connect( m_view, SIGNAL(loadFinished(bool)), this, SLOT(onPageLoaded(bool)) );
     connect( m_page->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(onJavaScriptWindowObjectCleared()) );
-
-    // Temp for testing.
-    QTimer::singleShot(1000, this, SLOT(updateServerList()));
 }
 
 void MainWindow::buildUI()
@@ -227,7 +224,6 @@ void MainWindow::createMenuBar()
 
     QMenu* debugMenu = menuBar()->addMenu("&Debug");
     debugMenu->addAction("Dump User Interface Map", this, SLOT(dumpUserInterfaceMap()));
-    debugMenu->addAction("Update Server List", this, SLOT(updateServerList()));
     debugMenu->addSeparator();
     debugMenu->addAction("Dump HTML", this, SLOT(dumpHtml()));
 }
@@ -328,11 +324,6 @@ void MainWindow::changeLocation()
 }
 
 // Debugging
-void MainWindow::updateServerList()
-{
-    //DiscoveryStub::Instance()->updateServerList();
-}
-
 void MainWindow::dumpHtml()
 {
     QString html = m_page->mainFrame()->toHtml();
@@ -392,48 +383,6 @@ void MainWindow::onTitleChanged(const QString& title)
         setWindowTitle(QString::fromLatin1("%1 - %2").arg(title).arg(QCoreApplication::applicationName()));
 }
 
-/*
-bool
-MainWindow::eventFilter(QObject* object, QEvent* event)
-{
-   // the text edit box filters its events through here
-  // if (object == m_text_edit_box)
-  // {
-      if (event->type() == QEvent::KeyPress)
-
-{
-         QKeyEvent *key_event = static_cast<QKeyEvent*>(event);
-
-         //if (key_event->matches(QKeySequence::Copy))
-        if (key_event->key() == Qt::Key_Space)
-        // if (key_event->matches(QKeySequence::Copy))
-         {
-             ::exit(0);
-            // don't do anything and don't pass along event
-            return true;
-         }
-      }
-      *//*
-      else if (event->type() == QEvent::KeyRelease)
-      {
-         QKeyEvent *key_event = static_cast<QKeyEvent*>(event);
-
-         if (key_event->matches(QKeySequence::Copy))
-         {
-            // we only get in here if 'c' is released before ctrl
-            callCustomCopy();
-            return true;
-         }
-      }
-      *//*
-  // }
-
-   // pass along event
-   return false;
-}
-*/
-
-
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape) {
@@ -444,9 +393,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 void MainWindow::attachProxyObject()
 {
     m_page->mainFrame()->addToJavaScriptWindowObject( QString("discoveryProxy"), m_discoveryProxy );
-    //m_page->mainFrame()->evaluateJavaScript("proxyConnect(); null");
     m_discoveryProxy->m_home = true;
-    //fprintf(stderr,"attachProxyObject. (m_home=true)");
 }
 
 // Here when the global window object of the JavaScript environment is cleared, e.g., before starting a new load

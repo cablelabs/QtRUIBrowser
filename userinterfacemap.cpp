@@ -76,7 +76,7 @@ void UserInterfaceMap::removeDevice(const QString& uuid) {
             removeServiceUIs(serviceKey);
         }
 
-        fprintf(stderr," - Removing device: %s [%s] %s\n", uuid.toAscii().data(), device.m_baseURL.toAscii().data(), device.m_friendlyName.toAscii().data());
+        //fprintf(stderr," - Removing device: %s [%s] %s\n", uuid.toAscii().data(), device.m_baseURL.toAscii().data(), device.m_friendlyName.toAscii().data());
 
     }
 

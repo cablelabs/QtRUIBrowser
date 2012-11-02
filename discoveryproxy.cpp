@@ -46,7 +46,32 @@ DiscoveryProxy::DiscoveryProxy()
     // Start discovery
     UPnPDeviceList deviceList = NavDsc::getInstance()->startUPnPInternalDiscovery(service_type, this );
     processDeviceList(deviceList);
+
+    // JavaScript state variables
+    m_scrollIndex = 0;
+    m_screenIndex = 0;
 }
+
+int DiscoveryProxy::scrollIndex()
+{
+    return m_scrollIndex;
+}
+
+int DiscoveryProxy::screenIndex()
+{
+    return m_screenIndex;
+}
+
+void DiscoveryProxy::setScrollIndex(int index)
+{
+    m_scrollIndex = index;
+}
+
+void DiscoveryProxy::setScreenIndex(int index)
+{
+    m_screenIndex = index;
+}
+
 
 // Here with an updated server list from the Disovery module (callback)
 void DiscoveryProxy::serverListUpdate(std::string type, UPnPDeviceList *deviceList)
@@ -74,7 +99,7 @@ void DiscoveryProxy::processDeviceList(UPnPDeviceList deviceList)
 {
     UPnPDeviceList::iterator p;
 
-    fprintf(stderr,"\nServer List Update:\n");
+    //fprintf(stderr,"\nServer List Update:\n");
 
     QStringList devices;
 
@@ -82,7 +107,7 @@ void DiscoveryProxy::processDeviceList(UPnPDeviceList deviceList)
     for (p = deviceList.begin(); p!=deviceList.end(); ++p) {
 
         UPnPDevice device = p->second;
-        fprintf(stderr," - Server: %s -> %s [%s]\n", device.friendlyName.c_str(), device.descURL.c_str(), device.uuid.c_str());
+        //fprintf(stderr," - Server: %s -> %s [%s]\n", device.friendlyName.c_str(), device.descURL.c_str(), device.uuid.c_str());
 
         // Process device on main thread.
         emit ruiDeviceAvailable(QString(device.descURL.c_str()));
@@ -101,7 +126,7 @@ void DiscoveryProxy::processDeviceList(UPnPDeviceList deviceList)
 void DiscoveryProxy::notifyListChanged()
 {
     if (m_home) {
-        fprintf( stderr, "Notify JavaScript (rui list changed)\n");
+        //fprintf( stderr, "Notify JavaScript (rui list changed)\n");
         emit ruiListNotification();
     }
 }

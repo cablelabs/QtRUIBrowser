@@ -79,4 +79,6 @@ OTHER_FILES += \
     www/rui_missingIcon.png \
     www/rui_elementNumber2.png \
     www/rui_elementName2.png \
-    www/rui_background2.png
+    www/rui_background2.png \
+    www/rui_elementNumberHighlight.png \
+    www/rui_elementNameHighlight.png
