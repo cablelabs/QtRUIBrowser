@@ -18,7 +18,6 @@ BrowserSettings* BrowserSettings::m_pInstance = NULL;
 #define keyTitleBar       "window/titleBar"
 #define keyMenuBar        "window/menuBar"
 #define keyNavigationBar  "window/navigationBar"
-#define keyTVRemote       "window/tvRemote"
 #define keyStartMaximized "window/startMaximized"
 #define keyStaysOnTop     "window/staysOnTop"
 
@@ -48,7 +47,6 @@ BrowserSettings::BrowserSettings(QObject *parent) :
     hasTitleBar = value(keyTitleBar).toBool();
     hasMenuBar = value(keyMenuBar).toBool();
     hasNavigationBar = value(keyNavigationBar).toBool();
-    hasTVRemote = value(keyTVRemote).toBool();
     startMaximized = value(keyStartMaximized).toBool();
     staysOnTop = value(keyStaysOnTop).toBool();
 
@@ -72,7 +70,6 @@ void BrowserSettings::generateDefaults()
     hasTitleBar = true;
     hasMenuBar = true;
     hasNavigationBar = true;
-    hasTVRemote = false;
     startMaximized = false;
     staysOnTop = false;
 
@@ -96,7 +93,6 @@ void BrowserSettings::save()
     setValue(keyTitleBar, hasTitleBar );
     setValue(keyMenuBar, hasMenuBar);
     setValue(keyNavigationBar, hasNavigationBar);
-    setValue(keyTVRemote, hasTVRemote);
     setValue(keyStartMaximized, startMaximized);
     setValue(keyStaysOnTop, staysOnTop);
 

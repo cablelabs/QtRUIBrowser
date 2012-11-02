@@ -35,7 +35,6 @@ public:
     bool hasMenuBar;
     bool hasNavigationBar;
     bool hasUrlEdit;
-    bool hasTVRemote;
     bool hasHomeButton;
     bool hasBackButton;
     bool hasForwardButton;

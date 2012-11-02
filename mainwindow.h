@@ -41,7 +41,6 @@ protected slots:
     void setAddressUrl(const QUrl& url);
     void openLocation();
     void changeLocation();
-    void toggleTVRemote(bool on);
     void toggleNavigationBar(bool on);
     void dumpUserInterfaceMap();
     void dumpHtml();
@@ -63,14 +62,11 @@ protected:
     void attachProxyObject();
 
     QWebView* m_view;
-    QWebView* m_tvRemoteView;
     RUIWebPage* m_page;
-    QWebPage* m_pageRemote;
     QToolBar* m_navigationBar;
     QStringListModel m_urlModel;
     QStringList m_urlList;
     LocationEdit* m_urlEdit;
-    TVRemoteBridge* m_tvRemoteBridge;
     DiscoveryProxy* m_discoveryProxy;
     BrowserSettings* m_browserSettings;
 };

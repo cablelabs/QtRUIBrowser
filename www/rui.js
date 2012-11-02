@@ -8,8 +8,17 @@ var flipped = false;    // flipped == true means the 'back' elements are in fron
 var uiElements;         // array of innerHtml content for each rui
 var canScroll;          // uiElements.length > panelCount
 var elementHeight = 86; // based on height of background images for the elements
+var frontUIIDs;
+var backUIIDs;
+var uiElementCount = 0;
+
 
 function pageLoaded() {
+
+    uiElements = new Array();
+
+    // Page HTML with empty elements
+    generatePage();
 
     proxyConnect();
 
@@ -67,13 +76,15 @@ function generateRUIElements() {
     uiElements = new Array();
 
     // There can be multiple urls for a given ui, which will result in additional divs
-    var uiElementCount = 0;
+    uiElementCount = 0;
 
     for (var i=0; i < count; i++) {
 
         var index = i;
 
         var generateUIDiv = function(ui) {
+
+            var selected = (i == selectIndex) ? " selected" : "";
 
             var icon = selectIcon(ui);
             var iconURL = icon.url;
@@ -84,11 +95,11 @@ function generateRUIElements() {
 
             var displayNumber = (uiElementCount + 1) % 10;
 
-            var elementInnerHtml = "<div class='uiElementNumber'>";
+            var elementInnerHtml = "<div class='uiElementNumber" + selected + "'>";
             elementInnerHtml += displayNumber;
             elementInnerHtml += '</div>';
 
-            elementInnerHtml += "<div class='uiElementName'>";
+            elementInnerHtml += "<div class='uiElementName" + selected + "'>";
             elementInnerHtml += "<div class='uiElementIcon' ";
             elementInnerHtml += "style='padding-left:" + paddingLeft + "; padding-top: " + paddingTop + ";'>";
             elementInnerHtml += "<img src='" + iconURL + "'/>";
@@ -99,11 +110,20 @@ function generateRUIElements() {
             elementInnerHtml += "</div>";
             elementInnerHtml += "</div>";
 
-            uiElements[uiElementCount] = elementInnerHtml;
+            var uiElem = new Object();
+            uiElem.uiID = ui.uiID;
+            uiElem.html = elementInnerHtml;
+
+            uiElements[uiElementCount] = uiElem;
         }
         generateUIDiv(uiList[index]);
 
         uiElementCount++;
+    }
+
+    canScroll = true;
+    if (uiElements.length <= panelCount) {
+        canScroll = false;
     }
 }
 
@@ -111,18 +131,17 @@ function generatePage() {
 
     var innerHTML = "";
 
-    // Scroll up arrow
+    // Used to check for currency
+    frontUIIDs = new Array();
+    backUIIDs = new Array();
+
+    // Scroll up indicator
     innerHTML += "<div id='navHeader' class='arrowHidden' >";
     //innerHTML += "<img src='qrc:/www/rui_arrowUp.png' />"
     innerHTML += "</div>";
 
     // Determine how many panels we will display - and whether we can scroll or not.
     panelCount = maxPanels;
-    canScroll = true;
-    if (uiElements.length <= panelCount) {
-        panelCount = uiElements.length;
-        canScroll = false;
-    }
 
     for (var i=0; i < panelCount; i++) {
 
@@ -140,7 +159,7 @@ function generatePage() {
         innerHTML += "</div>";
     }
 
-    // Scroll down arrow
+    // Scroll down indicator
     innerHTML += "<div id='navFooter' class='arrowHidden' >";
     //innerHTML += "<img src='qrc:/www/rui_arrowDown.png' />"
     innerHTML += "</div>";
@@ -152,10 +171,32 @@ function generatePage() {
 // This is required for an initial load and prior to a flip animation.
 function loadPanelElements(face, start) {
 
+    if (uiElements.length == 0)
+        return;
+
     var elems = document.getElementsByClassName(face);
     for(i=0; i<elems.length; i++)  {
-        var html = uiElements[start+i];
-        elems[i].innerHTML = html;
+        var currentHtml = elems[i].innerHTML;
+
+        var index = start+i;
+
+        var html = "";
+        var uiID = "";
+        var count = uiElements.length;
+
+        if (index < count) {
+            html = uiElements[index].html;
+            uiID = uiElements[index].uiID;
+        }
+
+        if ((face == "front") && (uiID !== frontUIIDs[i])) {
+            $(elems[i]).html(html);
+            frontUIIDs[i] = uiID;
+        }
+        else if ((face == "back") && (uiID !== backUIIDs[i])) {
+            $(elems[i]).html(html);
+            backUIIDs[i] = uiID;
+        }
     }
 }
 
@@ -164,9 +205,6 @@ function refreshRUIList() {
 
     // Array of innerHtml elements
     generateRUIElements();
-
-    // Page HTML with empty elements
-    generatePage();
 
     // Insert element HTML
     loadPanelElements('front', scrollIndex);
@@ -203,10 +241,8 @@ function scrollUp() {
     var elems = document.getElementsByClassName('panel');
     for(i=0; i<elems.length; i++)  {
         if ( flipped ) {
-            //alert("add flip");
             $(elems[i]).addClass('flip');
         } else {
-            //alert("remove flip");
             $(elems[i]).removeClass('flip');
         }
     }
@@ -250,7 +286,7 @@ function onKeydown(ev) {
 
     case 13:
         // enter
-        selectUI(selectIndex)
+        selectUI(selectIndex);
         break;
 
     case 37:
@@ -275,7 +311,7 @@ function onKeydown(ev) {
 
     case 40:
         // down arrow
-        if (screenIndex < (panelCount-1)) {
+        if (screenIndex < (panelCount-1) && screenIndex < (uiElementCount-1)) {
             screenIndex++;
             updateScreenPosition();
         } else if (canScroll && (scrollIndex < (uiElements.length-panelCount))) {

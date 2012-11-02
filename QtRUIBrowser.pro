@@ -19,7 +19,6 @@ SOURCES += \
     qtruibrowser.cpp \
     mainwindow.cpp \
     utils.cpp \
-    tvremotebridge.cpp \
     browsersettings.cpp \
     ruiwebpage.cpp \
     discoveryproxy.cpp \
@@ -31,7 +30,6 @@ HEADERS += \
     locationedit.h \
     mainwindow.h \
     utils.h \
-    tvremotebridge.h \
     browsersettings.h \
     ruiwebpage.h \
     discoveryproxy.h \

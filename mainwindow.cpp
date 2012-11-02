@@ -13,7 +13,6 @@
 #include "mainwindow.h"
 
 #include "locationedit.h"
-#include "tvremotebridge.h"
 #include "browsersettings.h"
 #include "utils.h"
 #include "ruiwebpage.h"
@@ -32,6 +31,7 @@
 #include <QCompleter>
 #include <QUrl>
 #include <QTimer>
+#include <QFrame>
 
 #define TV_REMOTE_SIMULATOR 1
 
@@ -43,7 +43,6 @@ const char* rui_home = "qrc:/www/index.html";
 
 MainWindow::MainWindow()
     : m_page(0)
-    , m_pageRemote(0)
     , m_navigationBar(0)
     , m_urlEdit(0)
     , m_discoveryProxy(0)
@@ -57,44 +56,15 @@ void MainWindow::init()
     int height = RUI_HEIGHT;
     int width = RUI_WIDTH;
 
-    // We house the RUI webview and the TV Remote webview in a splitter.
-    QSplitter* splitter = new QSplitter(Qt::Horizontal, this);
-    setCentralWidget(splitter);
-    //width += REMOTE_WIDTH;
+    QFrame* frame = new QFrame(this);
+    setCentralWidget(frame);
 
     // RUI webview
     m_page = new RUIWebPage(this);
-    m_view = new QWebView(splitter);
+    m_view = new QWebView(frame);
     m_view->setPage(m_page);
     m_view->installEventFilter(this);
     m_view->resize(width,height);
-
-    // TV Remote webview. Standard QWebPage (no useragent string modification)
-    m_pageRemote = new QWebPage(this);
-    m_tvRemoteView = new QWebView(splitter);
-    m_tvRemoteView->setPage(m_pageRemote);
-
-    QUrl qurl = urlFromUserInput(m_browserSettings->tvRemoteURL);
-    m_pageRemote->mainFrame()->load(qurl);
-
-    // Configure splitter
-    QList<int> paneWidths;
-
-    paneWidths.append(RUI_WIDTH);
-    paneWidths.append(REMOTE_WIDTH);
-
-    splitter->setSizes(paneWidths);
-
-    splitter->setHandleWidth(1);
-    QSplitterHandle* handle = splitter->handle(1);
-    handle->setEnabled(false);
-
-    // Handle key presses from the remote
-    m_tvRemoteBridge = new TVRemoteBridge(this, m_page, m_pageRemote);
-
-    if (!m_browserSettings->hasTVRemote) {
-        m_tvRemoteView->hide();
-    }
 
     buildUI();
 
@@ -215,9 +185,6 @@ void MainWindow::createMenuBar()
     viewMenu->addAction(m_page->action(QWebPage::Stop));
     viewMenu->addAction(m_page->action(QWebPage::Reload));
     viewMenu->addSeparator();
-    QAction* showTVRemote = viewMenu->addAction("TVRemote", this, SLOT(toggleTVRemote(bool)));
-    showTVRemote->setCheckable(true);
-    showTVRemote->setChecked(m_browserSettings->hasTVRemote);
     QAction* showNavigationBar = viewMenu->addAction("Navigation Bar", this, SLOT(toggleNavigationBar(bool)));
     showNavigationBar->setCheckable(true);
     showNavigationBar->setChecked(m_browserSettings->hasNavigationBar);
@@ -333,13 +300,6 @@ void MainWindow::dumpHtml()
 void MainWindow::dumpUserInterfaceMap()
 {
     m_discoveryProxy->dumpUserInterfaceMap();
-}
-
-void MainWindow::toggleTVRemote(bool b)
-{
-    m_browserSettings->hasTVRemote = b;
-    m_browserSettings->save();
-    b ? m_tvRemoteView->show() : m_tvRemoteView->hide();
 }
 
 void MainWindow::toggleNavigationBar(bool b)
