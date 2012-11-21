@@ -45,6 +45,7 @@ public:
     bool staysOnTop;
     bool proxyEnabled;
     int  proxyPort;
+    QString proxyType;
     QString proxyHost;
     QString certID;
     QString defaultRUIUrl;

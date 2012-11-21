@@ -207,7 +207,10 @@ void MainWindow::createMenuBar()
     debugMenu->addAction("Dump User Interface Map", this, SLOT(dumpUserInterfaceMap()));
     debugMenu->addSeparator();
     debugMenu->addAction("Dump HTML", this, SLOT(dumpHtml()));
-    QAction* enableHttpProxy = debugMenu->addAction("Enable HTTP Proxy", this, SLOT(toggleHttpProxy(bool)));
+    QString enableProxy = "Enable ";
+    enableProxy += m_browserSettings->proxyType;
+    enableProxy += " Proxy";
+    QAction* enableHttpProxy = debugMenu->addAction(enableProxy, this, SLOT(toggleHttpProxy(bool)));
     enableHttpProxy->setCheckable(true);
     enableHttpProxy->setChecked(m_browserSettings->proxyEnabled);
     debugMenu->addSeparator();
@@ -355,13 +358,19 @@ void MainWindow::checkHttpProxyEnabled()
 
 void MainWindow::enableHttpProxy()
 {
-    static QNetworkProxy proxy;
-    //proxy.setType(QNetworkProxy::Socks5Proxy);
-    proxy.setType(QNetworkProxy::HttpProxy);
+    QNetworkProxy proxy;
+    if ( m_browserSettings->proxyType.compare("Http",Qt::CaseInsensitive) == 0) {
+        proxy.setType(QNetworkProxy::HttpProxy);
+    } else if ( m_browserSettings->proxyType.compare("Socks5",Qt::CaseInsensitive) == 0) {
+        proxy.setType(QNetworkProxy::Socks5Proxy);
+    } else {
+        fprintf(stderr,"Invalid proxy type in .ini file: %s. Should be Http or Socks5. Defaulting to Http\n", m_browserSettings->proxyType.toAscii().data());
+        proxy.setType(QNetworkProxy::HttpProxy);
+        m_browserSettings->proxyType = "Http";
+        m_browserSettings->save();
+    }
     proxy.setHostName(m_browserSettings->proxyHost);
     proxy.setPort(m_browserSettings->proxyPort);
-    //proxy.setHostName("127.0.1.1");
-    //proxy.setPort(8888);
     QNetworkProxy::setApplicationProxy(proxy);
 }
 

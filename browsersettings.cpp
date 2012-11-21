@@ -32,6 +32,7 @@ BrowserSettings* BrowserSettings::m_pInstance = NULL;
 #define keyProxyHost      "httpProxy/host"
 #define keyProxyPort      "httpProxy/port"
 #define keyProxyEnabled   "httpProxy/enabled"
+#define keyProxyType      "httpProxy/type"
 
 #define keyCertID         "server/certID"
 #define keyTVRemoteUrl    "server/tvRemoteURL"
@@ -69,6 +70,7 @@ BrowserSettings::BrowserSettings(QObject *parent) :
     if (contains(keyProxyHost)) proxyHost = value(keyProxyHost).toString();
     if (contains(keyProxyPort)) proxyPort = value(keyProxyPort).toInt();
     if (contains(keyProxyEnabled)) proxyEnabled = value(keyProxyEnabled).toBool();
+    if (contains(keyProxyType)) proxyType = value(keyProxyType).toString();
 
     save();
 }
@@ -99,6 +101,7 @@ void BrowserSettings::generateDefaults()
     proxyEnabled = false;
     proxyHost = "127.0.1.1";
     proxyPort = 8888;   // Charles Web Proxy
+    proxyType = "HTTP";
 }
 
 void BrowserSettings::save()
@@ -127,6 +130,7 @@ void BrowserSettings::save()
     setValue(keyProxyEnabled, proxyEnabled);
     setValue(keyProxyHost, proxyHost);
     setValue(keyProxyPort, proxyPort);
+    setValue(keyProxyType, proxyType);
 }
 
 BrowserSettings* BrowserSettings::Instance()
