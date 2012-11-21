@@ -2,7 +2,6 @@
     <qresource prefix="/">
         <file>favicon.png</file>
         <file>www/index.html</file>
-        <file>www/rui_background.png</file>
         <file>www/rui.css</file>
         <file>www/rui.js</file>
         <file>www/rui_elementFrame.png</file>
@@ -13,5 +12,6 @@
         <file>www/rui_missingIcon.png</file>
         <file>www/rui_elementNameHighlight.png</file>
         <file>www/rui_elementNumberHighlight.png</file>
+        <file>www/rui_background.jpg</file>
     </qresource>
 </RCC>

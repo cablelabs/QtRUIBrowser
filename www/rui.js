@@ -269,7 +269,7 @@ function scrollDown() {
     }
 }
 
-function updateScreenPosition() {
+function recordScreenPosition() {
     selectIndex = screenIndex + scrollIndex;
     updateSelected();
 
@@ -297,10 +297,10 @@ function onKeydown(ev) {
         // up arrow
         if (screenIndex > 0) {
             screenIndex--;
-            updateScreenPosition();
+            recordScreenPosition();
         } else if (canScroll && (scrollIndex > 0)) {
             scrollUp();
-            updateScreenPosition();
+            recordScreenPosition();
         }
         ev.preventDefault();
         break;
@@ -313,10 +313,10 @@ function onKeydown(ev) {
         // down arrow
         if (screenIndex < (panelCount-1) && screenIndex < (uiElementCount-1)) {
             screenIndex++;
-            updateScreenPosition();
+            recordScreenPosition();
         } else if (canScroll && (scrollIndex < (uiElements.length-panelCount))) {
             scrollDown();
-            updateScreenPosition();
+            recordScreenPosition();
         }
         ev.preventDefault();
         break;
@@ -330,11 +330,14 @@ function onKeydown(ev) {
         if ( key >= 48 && key <= 57 ) {
             var numKey = key - 48;
             var index = numKeyToIndex(numKey);
-            if (index >= 0 && index < uiList.length)
-            selectUI(index);
+            if (index >= 0 && index < uiList.length) {
+                screenIndex = index - scrollIndex;
+                recordScreenPosition();
+                selectUI(index);
+            }
         } else {
 
-            alert(key);
+            //alert(key);
         }
 
         break;
@@ -358,7 +361,7 @@ function numKeyToIndex(numKey) {
 // Here when a RUI panel was clicked.
 function selectPanel(index) {
     screenIndex = index;
-    updateScreenPosition();
+    recordScreenPosition();
     selectUI(selectIndex)
 }
 

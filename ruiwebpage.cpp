@@ -35,13 +35,13 @@ QString RUIWebPage::userAgentForUrl(const QUrl& url) const
     // Always add the product token, but only add the CertID if this is a RUI Transport Server
     // AND the protocol is https.
 
-    userAgent += " DLNA-HTML5/1.0";
+    userAgent += " DLNADOC/1.50 DLNA-HTML5/1.0";
 
     if ( scheme.compare("https") == 0) {
 
         if (proxy->isHostRUITransportServer(host)) {
 
-            userAgent += " (CertID <" + settings->certID + ">)";
+            userAgent += " (CertID " + settings->certID + ")";
         }
     }
 

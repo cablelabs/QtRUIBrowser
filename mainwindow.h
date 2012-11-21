@@ -19,6 +19,8 @@
 //#include <QWebView>
 #include "qwebview.h"
 #include "discoveryproxy.h"
+#include "qwebinspector.h"
+#include "webinspector.h"
 
 class LocationEdit;
 class TVRemoteBridge;
@@ -35,13 +37,17 @@ public:
     void load(const QString& url);
     void load(const QUrl& url);
     void home();
+    void checkHttpProxyEnabled();
 
 protected slots:
     void setAddressUrl(const QString& url);
     void setAddressUrl(const QUrl& url);
     void openLocation();
+    void openFile();
     void changeLocation();
     void toggleNavigationBar(bool on);
+    void toggleHttpProxy(bool on);
+    void toggleWebInspector(bool on);
     void dumpUserInterfaceMap();
     void dumpHtml();
 
@@ -60,6 +66,7 @@ protected:
     void init();
     void createMenuBar();
     void attachProxyObject();
+    void enableHttpProxy();
 
     QWebView* m_view;
     RUIWebPage* m_page;
@@ -69,6 +76,7 @@ protected:
     LocationEdit* m_urlEdit;
     DiscoveryProxy* m_discoveryProxy;
     BrowserSettings* m_browserSettings;
+    WebInspector* m_inspector;
 };
 
 #endif

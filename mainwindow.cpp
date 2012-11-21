@@ -21,6 +21,7 @@
 //#include "discoverystub.h"
 
 #include <QMenuBar>
+#include <QFileDialog>
 #include <QKeyEvent>
 #include <QAction>
 #include <QSplitter>
@@ -32,12 +33,12 @@
 #include <QUrl>
 #include <QTimer>
 #include <QFrame>
+#include <QNetworkProxy>
 
 #define TV_REMOTE_SIMULATOR 1
 
 #define RUI_WIDTH 800
-#define REMOTE_WIDTH 246
-#define RUI_HEIGHT 600
+#define RUI_HEIGHT 562
 
 const char* rui_home = "qrc:/www/index.html";
 
@@ -56,15 +57,28 @@ void MainWindow::init()
     int height = RUI_HEIGHT;
     int width = RUI_WIDTH;
 
-    QFrame* frame = new QFrame(this);
-    setCentralWidget(frame);
+    // We house the RUI webview and the web inspector in a splitter.
+    QSplitter* splitter = new QSplitter(Qt::Vertical, this);
+    setCentralWidget(splitter);
+    splitter->setMinimumWidth(800);
+    splitter->setMinimumHeight(450);
+    splitter->resize(RUI_WIDTH,RUI_HEIGHT);
 
     // RUI webview
     m_page = new RUIWebPage(this);
-    m_view = new QWebView(frame);
+    m_view = new QWebView(splitter);
     m_view->setPage(m_page);
     m_view->installEventFilter(this);
     m_view->resize(width,height);
+
+    m_inspector = new WebInspector;
+    connect(this, SIGNAL(destroyed()), m_inspector, SLOT(deleteLater()));
+
+    splitter->addWidget(m_inspector);
+    m_inspector->setPage(m_page);
+    if (!m_browserSettings->hasWebInspector) {
+        m_inspector->hide();
+    }
 
     buildUI();
 
@@ -173,7 +187,7 @@ void MainWindow::createMenuBar()
 {
     QMenu* fileMenu = menuBar()->addMenu("&File");
     //fileMenu->addAction("New Window", this, SLOT(newWindow()), QKeySequence::New);
-    //fileMenu->addAction(tr("Open File..."), this, SLOT(openFile()), QKeySequence::Open);
+    fileMenu->addAction(tr("Open File..."), this, SLOT(openFile()), QKeySequence::Open);
     fileMenu->addAction(tr("Open Location..."), this, SLOT(openLocation()), QKeySequence(Qt::CTRL | Qt::Key_L));
     fileMenu->addAction("Close Window", this, SLOT(close()), QKeySequence::Close);
     fileMenu->addSeparator();
@@ -193,6 +207,29 @@ void MainWindow::createMenuBar()
     debugMenu->addAction("Dump User Interface Map", this, SLOT(dumpUserInterfaceMap()));
     debugMenu->addSeparator();
     debugMenu->addAction("Dump HTML", this, SLOT(dumpHtml()));
+    QAction* enableHttpProxy = debugMenu->addAction("Enable HTTP Proxy", this, SLOT(toggleHttpProxy(bool)));
+    enableHttpProxy->setCheckable(true);
+    enableHttpProxy->setChecked(m_browserSettings->proxyEnabled);
+    debugMenu->addSeparator();
+    QAction* showInspectorAction = debugMenu->addAction("Web Inspector", this, SLOT(toggleWebInspector(bool)), QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_I));
+    showInspectorAction->setCheckable(true);
+    showInspectorAction->connect(m_inspector, SIGNAL(visibleChanged(bool)), SLOT(setChecked(bool)));
+}
+
+void MainWindow::openFile()
+{
+    static const QString filter("HTML Files (*.htm *.html);;Text Files (*.txt);;Image Files (*.gif *.jpg *.png);;All Files (*)");
+
+    QFileDialog fileDialog(this, tr("Open"), QString(), filter);
+    fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
+    fileDialog.setFileMode(QFileDialog::ExistingFile);
+    fileDialog.setOptions(QFileDialog::ReadOnly);
+
+    if (fileDialog.exec()) {
+        QString selectedFile = fileDialog.selectedFiles()[0];
+        if (!selectedFile.isEmpty())
+            load(QUrl::fromLocalFile(selectedFile));
+    }
 }
 
 void MainWindow::home()
@@ -308,6 +345,44 @@ void MainWindow::toggleNavigationBar(bool b)
     m_browserSettings->save();
     b ? m_navigationBar->show() : m_navigationBar->hide();
 }
+
+void MainWindow::checkHttpProxyEnabled()
+{
+    if (m_browserSettings->proxyEnabled) {
+        toggleHttpProxy(true);
+    }
+}
+
+void MainWindow::enableHttpProxy()
+{
+    static QNetworkProxy proxy;
+    //proxy.setType(QNetworkProxy::Socks5Proxy);
+    proxy.setType(QNetworkProxy::HttpProxy);
+    proxy.setHostName(m_browserSettings->proxyHost);
+    proxy.setPort(m_browserSettings->proxyPort);
+    //proxy.setHostName("127.0.1.1");
+    //proxy.setPort(8888);
+    QNetworkProxy::setApplicationProxy(proxy);
+}
+
+void MainWindow::toggleHttpProxy(bool b)
+{
+    m_browserSettings->proxyEnabled = b;
+    m_browserSettings->save();
+
+    if (b) {
+        enableHttpProxy();
+    } else {
+        QNetworkProxy::setApplicationProxy(QNetworkProxy::DefaultProxy);
+    }
+}
+
+void MainWindow::toggleWebInspector(bool b) {
+    m_browserSettings->hasWebInspector = b;
+    m_browserSettings->save();
+    m_inspector->setVisible(b);
+}
+
 
 // Don't think we need this
 void MainWindow::openLocation()

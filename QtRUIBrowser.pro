@@ -35,18 +35,21 @@ HEADERS += \
     discoveryproxy.h \
     soapmessage.h \
     userinterface.h \
-    userinterfacemap.h
+    userinterfacemap.h \
+    webinspector.h
 
 
 WEBKIT += wtf webcore webkit1
 
-#CONFIG += debug
-#CONFIG -= release
 CONFIG -= production_build
 WEBKIT_CONFIG -= build_webkit1
 WEBKIT_CONFIG -= build_webkit2
 
-DESTDIR = $(PWD)/bin
+CONFIG(debug, debug|release) {
+    DESTDIR = $(PWD)/bin/debug
+} else {
+    DESTDIR = $(PWD)/bin/release
+}
 OBJECTS_DIR = obj
 
 QT += network webkit widgets xml
@@ -65,7 +68,6 @@ RESOURCES += \
 
 OTHER_FILES += \
     www/index.html \
-    www/rui_background.png \
     www/rui.js \
     www/rui.css \
     www/rui_elementFrame.png \
@@ -79,4 +81,5 @@ OTHER_FILES += \
     www/rui_elementName2.png \
     www/rui_background2.png \
     www/rui_elementNumberHighlight.png \
-    www/rui_elementNameHighlight.png
+    www/rui_elementNameHighlight.png \
+    www/rui_background.jpg

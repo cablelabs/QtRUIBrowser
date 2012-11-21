@@ -8,7 +8,14 @@ instructions.
 	# With the latest WebKit distro, the following variable needs to be set before running qmake:
 	export QMAKEPATH=<yourPath>/WebKit/Tools/qmake
 
-    qmake .
+    # This no longer works (?!)
+    # qmake .
+    
+    # This makes a debug version
+    qmake QtRUIBrowser.pro
+    
+    # This makes a release version
+    qmake QtRUIBrowser.pro CONFIG+=release CONFIG-=debug
     make
 
 ## Run
@@ -19,10 +26,10 @@ instructions.
 ## Operation / Testing
 
     Test using the CableLabs RUIServer (java mock RUI Servers, see the related README)
-    Select a RUI by clicking or entering the number via keyboard or TVRemote (View Menu)
+    Select a RUI by:
+    - clicking on the UI entry
+    - entering the number via keyboard
+    - scrolling up/down until desired UI highlighted, then press enter
     Return to the Navigation Page via escape key or back button.
-
-    TODO: Scrolling, highlight current entry, and select using "select" or Enter
-
 
 

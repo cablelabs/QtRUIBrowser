@@ -40,8 +40,12 @@ public:
     bool hasForwardButton;
     bool hasReloadButton;
     bool hasStopButton;
+    bool hasWebInspector;
     bool startMaximized;
     bool staysOnTop;
+    bool proxyEnabled;
+    int  proxyPort;
+    QString proxyHost;
     QString certID;
     QString defaultRUIUrl;
     QString defaultRUIImage;

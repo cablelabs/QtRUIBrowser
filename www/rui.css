@@ -1,14 +1,14 @@
 body
 {
     background-color: #004988;
-    background-image: url(qrc:/www/rui_background.png);
+    background-image: url(qrc:/www/rui_background.jpg);
     background-repeat: no-repeat;
-    width: 800px;
+    background-size: 100% 100%;
+    //background-size: cover;
 }
 
 .uiElement
 {
-    //background-color: Yellow;
     background-repeat: no-repeat;
     font-family : Sans-Serif;
     color: White;
@@ -18,18 +18,14 @@ body
 {
     background-image: url(qrc:/www/rui_elementNumber.png);
     background-repeat: no-repeat;
-    //width: 130px;
-    //height: 115px;
     width: 65px;
     height: 57px;
     float: left;
     text-align: center;
     left: 0;
     top: 0;
-    //font-size : 50px;
     font-size : 25px;
     font-weight: 400;
-    //padding-top: 57px;
     padding-top: 29px;
 }
 
@@ -40,8 +36,6 @@ body
 
 .uiElementIcon
 {
-    //height:172px;
-    //width: 162px;
     height:86px;
     width: 81px;
     float: left;
@@ -56,7 +50,6 @@ body
 
     background-image: url(qrc:/www/rui_elementName.png);
     background-repeat: no-repeat;
-    //height:172px;
     width:680px;
     min-width: 700px;
     height:86px;
@@ -72,18 +65,13 @@ body
 
 .uiElementText
 {
-    //height: 120px;
-    //width:580px;
     height: 600px;
     width:480px;
     float:left;
     padding: 0;
-    //margin-left: 40px;
     margin-left: 20px;
-    //font-size : 50px;
     font-size : 25px;
     font-weight: 400;
-    //padding-top: 53px;
     padding-top: 29px;
 }
 
@@ -134,7 +122,6 @@ body
     float: left;
     width: 1000px;
     height: 172px;
-    //margin: 20px;
     position: relative;
 
     -webkit-perspective: 600px;
@@ -143,8 +130,6 @@ body
 .panel .front {
     float: none;
     position: absolute;
-    //top: 0;
-    //left: 0;
 
     -webkit-transform: rotateX(0deg) rotateY(0deg);
     -webkit-transform-style: preserve-3d;

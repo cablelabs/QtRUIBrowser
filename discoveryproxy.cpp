@@ -26,6 +26,7 @@
 #include <QVariant>
 #include <QVariantMap>
 #include <QTextDocument>
+#include "ruiwebpage.h"
 
 DiscoveryProxy* DiscoveryProxy::m_pInstance = NULL;
 
@@ -135,6 +136,15 @@ void DiscoveryProxy::notifyListChanged()
 void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& document)
 {
     QString baseURL = url.left(url.lastIndexOf("/"));
+
+    // Optional and deprecated.
+    QDomElement rootElement = document.documentElement();
+    if (!rootElement.isNull()) {
+        QDomElement urlBase = rootElement.firstChildElement("URLBase");
+        if (!urlBase.isNull()) {
+            baseURL = trimElementText(urlBase.text());
+        }
+    }
 
     // A device can have multiple devices and each device can have multiple services.
     // Filter by the device/service pairs we are interested in. Record the uuid of the root device
@@ -315,6 +325,12 @@ void DiscoveryProxy::processUIList(const QString& url, const QDomDocument& docum
     notifyListChanged();
 }
 
+QString DiscoveryProxy::userAgentString() {
+    // OK, this is horky. But the only way to get the standard user agent string is through a RUIWebPage.
+    RUIWebPage tempPage;
+    return tempPage.userAgentForUrl(QUrl()) + " DLNADOC/1.50 DLNA-HTML5/1.0";
+}
+
 
 // Here with a qualified controlURL for a RemoteUIServer service.
 void DiscoveryProxy::requestCompatibleUIs(const QString& url)
@@ -332,6 +348,7 @@ void DiscoveryProxy::requestCompatibleUIs(const QString& url)
     QNetworkRequest networkReq;
     networkReq.setHeader(QNetworkRequest::ContentTypeHeader, QLatin1String("text/xml;charset=utf-8"));
     networkReq.setRawHeader("SOAPAction", "GetCompatibleUIs");
+    networkReq.setRawHeader("User-Agent", userAgentString().toAscii().data());
     networkReq.setUrl(QUrl(url));
 
     m_soapHttp.post(networkReq, xml.toAscii());

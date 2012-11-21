@@ -20,6 +20,7 @@ BrowserSettings* BrowserSettings::m_pInstance = NULL;
 #define keyNavigationBar  "window/navigationBar"
 #define keyStartMaximized "window/startMaximized"
 #define keyStaysOnTop     "window/staysOnTop"
+#define keyWebInspector   "window/webInspector"
 
 #define keyUrlEdit        "navigation/urlEdit"
 #define keyHomeButton     "navigation/homeButton"
@@ -27,6 +28,10 @@ BrowserSettings* BrowserSettings::m_pInstance = NULL;
 #define keyReloadButton   "navigation/reloadButton"
 #define keyForwardButton  "navigation/forwardButton"
 #define keyStopButton     "navigation/stopButton"
+
+#define keyProxyHost      "httpProxy/host"
+#define keyProxyPort      "httpProxy/port"
+#define keyProxyEnabled   "httpProxy/enabled"
 
 #define keyCertID         "server/certID"
 #define keyTVRemoteUrl    "server/tvRemoteURL"
@@ -38,31 +43,34 @@ BrowserSettings* BrowserSettings::m_pInstance = NULL;
 BrowserSettings::BrowserSettings(QObject *parent) :
     QSettings("qtruibrowser.ini", QSettings::IniFormat, parent)
 {
-    QFile settingsFile(this->fileName());
-    if (!settingsFile.exists()) {
-        generateDefaults();
-        save();
-    }
+    generateDefaults();
 
-    hasTitleBar = value(keyTitleBar).toBool();
-    hasMenuBar = value(keyMenuBar).toBool();
-    hasNavigationBar = value(keyNavigationBar).toBool();
-    startMaximized = value(keyStartMaximized).toBool();
-    staysOnTop = value(keyStaysOnTop).toBool();
+    if (contains(keyTitleBar)) hasTitleBar = value(keyTitleBar).toBool();
+    if (contains(keyMenuBar)) hasMenuBar = value(keyMenuBar).toBool();
+    if (contains(keyNavigationBar)) hasNavigationBar = value(keyNavigationBar).toBool();
+    if (contains(keyStartMaximized)) startMaximized = value(keyStartMaximized).toBool();
+    if (contains(keyStaysOnTop)) staysOnTop = value(keyStaysOnTop).toBool();
+    if (contains(keyWebInspector)) hasWebInspector = value(keyWebInspector).toBool();
 
-    hasUrlEdit = value(keyUrlEdit).toBool();
-    hasHomeButton = value(keyHomeButton).toBool();
-    hasBackButton = value(keyBackButton).toBool();
-    hasReloadButton = value(keyReloadButton).toBool();
-    hasForwardButton = value(keyForwardButton).toBool();
-    hasStopButton = value(keyStopButton).toBool();
+    if (contains(keyUrlEdit)) hasUrlEdit = value(keyUrlEdit).toBool();
+    if (contains(keyHomeButton)) hasHomeButton = value(keyHomeButton).toBool();
+    if (contains(keyBackButton)) hasBackButton = value(keyBackButton).toBool();
+    if (contains(keyReloadButton)) hasReloadButton = value(keyReloadButton).toBool();
+    if (contains(keyForwardButton)) hasForwardButton = value(keyForwardButton).toBool();
+    if (contains(keyStopButton)) hasStopButton = value(keyStopButton).toBool();
 
-    certID = value(keyCertID).toString();
-    tvRemoteURL = value(keyTVRemoteUrl).toString();
+    if (contains(keyCertID)) certID = value(keyCertID).toString();
+    if (contains(keyTVRemoteUrl)) tvRemoteURL = value(keyTVRemoteUrl).toString();
 
-    defaultRUIUrl = value(keyRUIUrl).toString();
-    defaultRUIImage = value(keyRUIImage).toString();
-    defaultRUILabel = value(keyRUILabel).toString();
+    if (contains(keyRUIUrl)) defaultRUIUrl = value(keyRUIUrl).toString();
+    if (contains(keyRUIImage)) defaultRUIImage = value(keyRUIImage).toString();
+    if (contains(keyRUILabel)) defaultRUILabel = value(keyRUILabel).toString();
+
+    if (contains(keyProxyHost)) proxyHost = value(keyProxyHost).toString();
+    if (contains(keyProxyPort)) proxyPort = value(keyProxyPort).toInt();
+    if (contains(keyProxyEnabled)) proxyEnabled = value(keyProxyEnabled).toBool();
+
+    save();
 }
 
 void BrowserSettings::generateDefaults()
@@ -79,13 +87,18 @@ void BrowserSettings::generateDefaults()
     hasReloadButton = true;
     hasForwardButton = true;
     hasStopButton = true;
+    hasWebInspector = false;
 
-    certID = "12345CABLELABS67890";
+    certID = "certIdPlaceHolder";
     tvRemoteURL = "http://localhost/remote.html";
 
-    defaultRUIUrl = "http://ostevetto.com";
-    defaultRUIImage = "http://ostevetto.com/images/BassClef.ico";
-    defaultRUILabel = "Live Jazz";
+    defaultRUIUrl = "";
+    defaultRUIImage = "";
+    defaultRUILabel = "";
+
+    proxyEnabled = false;
+    proxyHost = "127.0.1.1";
+    proxyPort = 8888;   // Charles Web Proxy
 }
 
 void BrowserSettings::save()
@@ -102,6 +115,7 @@ void BrowserSettings::save()
     setValue(keyReloadButton, hasReloadButton);
     setValue(keyForwardButton, hasForwardButton);
     setValue(keyStopButton, hasStopButton);
+    setValue(keyWebInspector, hasWebInspector);
 
     setValue(keyCertID, certID);
     setValue(keyTVRemoteUrl, tvRemoteURL);
@@ -109,6 +123,10 @@ void BrowserSettings::save()
     setValue(keyRUIUrl, defaultRUIUrl);
     setValue(keyRUIImage, defaultRUIImage);
     setValue(keyRUILabel, defaultRUILabel);
+
+    setValue(keyProxyEnabled, proxyEnabled);
+    setValue(keyProxyHost, proxyHost);
+    setValue(keyProxyPort, proxyPort);
 }
 
 BrowserSettings* BrowserSettings::Instance()
