@@ -146,6 +146,11 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
         }
     }
 
+    // Get base URL without path for slash prefixed relative URIs
+    QUrl qurl = QUrl(baseURL);
+    QString hostURL = qurl.toString(QUrl::RemovePath);
+
+
     // A device can have multiple devices and each device can have multiple services.
     // Filter by the device/service pairs we are interested in. Record the uuid of the root device
     // for all devices (including the root) so we can determine which devices to delete on a removal.
@@ -157,6 +162,14 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
     for (int i=0; i < deviceList.count(); i++) {
 
         QDomNode device = deviceList.item(i);
+
+        // There can be multiple X_DLNADOC elements for a device. We don't care about the value at this point,
+        // but want to ensure that this is in fact a DLNA device.
+        // <dlna:X_DLNADOC>DMS-1.50</dlna:X_DLNADOC>
+        QDomElement dlnaDoc = device.firstChildElement("dlna:X_DLNADOC");
+        if (dlnaDoc.isNull()) {
+            continue;
+        }
 
         RUIDevice ruiDevice;
 
@@ -189,14 +202,59 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
                     RUIService ruiService;
                     ruiService.m_baseURL = baseURL;
 
-                    QDomElement controlURL = service.firstChildElement("controlURL");
-                    ruiService.m_controlURL = baseURL + trimElementText(controlURL.text());
+                    QDomElement urlElement;
+                    QString trimmedURL;
 
-                    QDomElement descriptionURL = service.firstChildElement("SCPDURL");
-                    ruiService.m_descriptionURL = baseURL + trimElementText(descriptionURL.text());
+                    // Service Control URL
+                    urlElement = service.firstChildElement("controlURL");
+                    if (!urlElement.isNull()) {
+                        trimmedURL = trimElementText(urlElement.text());
+                        if (trimmedURL.contains("://")) {
+                            ruiService.m_controlURL = trimmedURL;
+                        }
+                        else {
+                            if (trimmedURL[0] == '/') {
+                                ruiService.m_controlURL = hostURL + trimmedURL;
+                            }
+                            else {
+                                ruiService.m_controlURL = baseURL + trimmedURL;
+                            }
+                        }
+                    }
 
-                    QDomElement eventURL = service.firstChildElement("eventSubURL");
-                    ruiService.m_eventURL = baseURL + trimElementText(eventURL.text());
+                    // Service Description URL
+                    urlElement = service.firstChildElement("SCPDURL");
+                    if (!urlElement.isNull()) {
+                        trimmedURL = trimElementText(urlElement.text());
+                        if (trimmedURL.contains("://")) {
+                            ruiService.m_descriptionURL = trimmedURL;
+                        }
+                        else {
+                            if (trimmedURL[0] == '/') {
+                                ruiService.m_descriptionURL = hostURL + trimmedURL;
+                            }
+                            else {
+                                ruiService.m_descriptionURL = baseURL + trimmedURL;
+                            }
+                        }
+                    }
+
+                    // Service Eventing URL
+                    urlElement = service.firstChildElement("eventSubURL");
+                    if (!urlElement.isNull()) {
+                        trimmedURL = trimElementText(urlElement.text());
+                        if (trimmedURL.contains("://")) {
+                            ruiService.m_eventURL = trimmedURL;
+                        }
+                        else {
+                            if (trimmedURL[0] == '/') {
+                                ruiService.m_eventURL = hostURL + trimmedURL;
+                            }
+                            else {
+                                ruiService.m_eventURL = baseURL + trimmedURL;
+                            }
+                        }
+                    }
 
                     ruiService.m_serviceType = trimElementText(serviceType.text());
 
@@ -328,7 +386,7 @@ void DiscoveryProxy::processUIList(const QString& url, const QDomDocument& docum
 QString DiscoveryProxy::userAgentString() {
     // OK, this is horky. But the only way to get the standard user agent string is through a RUIWebPage.
     RUIWebPage tempPage;
-    return tempPage.userAgentForUrl(QUrl()) + " DLNADOC/1.50 DLNA-HTML5/1.0";
+    return tempPage.userAgentForUrl(QUrl());
 }
 
 
@@ -351,14 +409,19 @@ void DiscoveryProxy::requestCompatibleUIs(const QString& url)
     networkReq.setRawHeader("User-Agent", userAgentString().toAscii().data());
     networkReq.setUrl(QUrl(url));
 
-    m_soapHttp.post(networkReq, xml.toAscii());
+    QNetworkReply* reply = m_soapHttp.post(networkReq, xml.toAscii());
+    reply->setReadBufferSize(1024*250); // 7.3.2.15.2
+    //fprintf(stderr,"Read buffer size: %d\n", (int) reply->readBufferSize());
 }
 
 // We have received a RUI Server Description. Parse the control URL and request compatible UIs.
 void DiscoveryProxy::httpReply(QNetworkReply* reply)
 {
     if (reply->error() != QNetworkReply::NoError) {
-        fprintf( stderr, "http reply: error %d\n", reply->error());
+        int httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        QString httpStatusMessage = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toByteArray();
+        fprintf( stderr, "DiscoveryProxy::httpReply: error %d -  %s\n", httpStatus, httpStatusMessage.toAscii().data() );
+        return;
     }
 
     QString xml(reply->readAll());
@@ -378,19 +441,16 @@ void DiscoveryProxy::httpReply(QNetworkReply* reply)
         return;
     }
 
-    // We currently only receive device messages, but allow for others in the future.
-    QDomElement root = document.documentElement();
-    QString schema = root.attribute(xmlns_dlna);
-    if (schema.compare(schema_device) == 0) {
-        processDevice(url, document);
-    }
+    processDevice(url, document);
 }
 
 // We have received a list of compatible UIs
 void DiscoveryProxy::soapHttpReply(QNetworkReply* reply)
 {
     if (reply->error() != QNetworkReply::NoError) {
-        fprintf( stderr, "DiscoveryProxy::soapHttpReply: error %d\n", reply->error());
+        int httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        QString httpStatusMessage = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toByteArray();
+        fprintf( stderr, "DiscoveryProxy::soapHttpReply: error %d -  %s\n", httpStatus, httpStatusMessage.toAscii().data() );
         return;
     }
 
@@ -399,6 +459,7 @@ void DiscoveryProxy::soapHttpReply(QNetworkReply* reply)
     text.setHtml(html);
     QString xml = text.toPlainText();
     //QString xml = html;
+    //fprintf( stderr, "Received reply: %d bytes\n", html.length());
 
 
     QString url = reply->url().toString();
