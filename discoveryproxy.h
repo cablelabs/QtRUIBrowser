@@ -85,6 +85,8 @@ private slots:
     virtual void ZCDevDropped(std::string) {}
     virtual void sendEvent(std::string, std::string, std::string) {}
     virtual void onError(int) {}
+    virtual void receiveID(long idFromHN) {}
+
 
     // For executing on main thread.
     void requestDeviceDescription(QString);
