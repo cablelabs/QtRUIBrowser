@@ -6,13 +6,12 @@
 
 TEMPLATE = app
 
-# Define WEBKITDIR environment variable external to this script - Do not use relative paths or ~/
-ROOT_WEBKIT_DIR = $$(WEBKITDIR)
+# Define WEBKIT_ROOT environment variable external to this script - Do not use relative paths or ~/
 
 INCLUDEPATH += \
-    $${ROOT_WEBKIT_DIR}/Source/WebCore/Modules/discovery \
-#    $${ROOT_WEBKIT_DIR}/Source/WebKit/qt/WebCoreSupport \
-    $${ROOT_WEBKIT_DIR}/Source/WTF
+    $${WEBKIT_ROOT}/Source/WebCore/Modules/discovery \
+#   $${WEBKIT_ROOT}/Source/WebKit/qt/WebCoreSupport \
+    $${WEBKIT_ROOT}/Source/WTF
 
 SOURCES += \
     locationedit.cpp \
