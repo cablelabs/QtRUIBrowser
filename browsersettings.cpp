@@ -18,7 +18,7 @@ BrowserSettings* BrowserSettings::m_pInstance = NULL;
 #define keyTitleBar       "window/titleBar"
 #define keyMenuBar        "window/menuBar"
 #define keyNavigationBar  "window/navigationBar"
-#define keyStartMaximized "window/startMaximized"
+#define keyStartFullScreen "window/startFullScreen"
 #define keyStaysOnTop     "window/staysOnTop"
 #define keyWebInspector   "window/webInspector"
 
@@ -49,7 +49,7 @@ BrowserSettings::BrowserSettings(QObject *parent) :
     if (contains(keyTitleBar)) hasTitleBar = value(keyTitleBar).toBool();
     if (contains(keyMenuBar)) hasMenuBar = value(keyMenuBar).toBool();
     if (contains(keyNavigationBar)) hasNavigationBar = value(keyNavigationBar).toBool();
-    if (contains(keyStartMaximized)) startMaximized = value(keyStartMaximized).toBool();
+    if (contains(keyStartFullScreen)) startFullScreen = value(keyStartFullScreen).toBool();
     if (contains(keyStaysOnTop)) staysOnTop = value(keyStaysOnTop).toBool();
     if (contains(keyWebInspector)) hasWebInspector = value(keyWebInspector).toBool();
 
@@ -80,7 +80,7 @@ void BrowserSettings::generateDefaults()
     hasTitleBar = true;
     hasMenuBar = true;
     hasNavigationBar = true;
-    startMaximized = false;
+    startFullScreen = false;
     staysOnTop = false;
 
     hasUrlEdit = true;
@@ -109,7 +109,7 @@ void BrowserSettings::save()
     setValue(keyTitleBar, hasTitleBar );
     setValue(keyMenuBar, hasMenuBar);
     setValue(keyNavigationBar, hasNavigationBar);
-    setValue(keyStartMaximized, startMaximized);
+    setValue(keyStartFullScreen, startFullScreen);
     setValue(keyStaysOnTop, staysOnTop);
 
     setValue(keyUrlEdit, hasUrlEdit);

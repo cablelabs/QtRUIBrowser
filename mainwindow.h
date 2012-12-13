@@ -50,6 +50,7 @@ protected slots:
     void toggleWebInspector(bool on);
     void dumpUserInterfaceMap();
     void dumpHtml();
+    void fullScreenOn();
 
     void onIconChanged();
     void onLoadStarted();
@@ -67,6 +68,8 @@ protected:
     void createMenuBar();
     void attachProxyObject();
     void enableHttpProxy();
+    void fullScreen(bool on);
+
 
     QWebView* m_view;
     RUIWebPage* m_page;

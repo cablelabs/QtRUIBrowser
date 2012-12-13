@@ -41,7 +41,7 @@ public:
     bool hasReloadButton;
     bool hasStopButton;
     bool hasWebInspector;
-    bool startMaximized;
+    bool startFullScreen;
     bool staysOnTop;
     bool proxyEnabled;
     int  proxyPort;

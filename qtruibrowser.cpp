@@ -64,7 +64,16 @@ int main(int argc, char **argv)
     //qInstallMsgHandler();
 
     MainWindow* window = new MainWindow();
-    window->home();
+
+    QStringList args = QApplication::instance()->arguments();
+
+    QString lastArg = args[args.length()-1];
+    if (!lastArg.isNull() && lastArg.contains("://")) {
+        window->load(lastArg);
+    }
+    else {
+        window->home();
+    }
     window->show();
     window->checkHttpProxyEnabled();
 

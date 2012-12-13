@@ -57,6 +57,27 @@ void MainWindow::init()
     int height = RUI_HEIGHT;
     int width = RUI_WIDTH;
 
+    QStringList args = QApplication::instance()->arguments();
+
+    if (args.contains("-fullscreen")) {
+        m_browserSettings->startFullScreen = true;
+    }
+
+    if (args.contains("-?")) {
+        fprintf(stderr,"\n  usage:  QtRUIBrowser [-fullscreen] [url]\n\n");
+        ::exit(1);
+    }
+
+    /*
+    if (m_browserSettings->startFullScreen) {
+        //m_browserSettings->hasMenuBar=false;
+        m_browserSettings->hasNavigationBar=false;
+        //m_browserSettings->hasTitleBar=false;
+        m_browserSettings->hasWebInspector=false;
+        m_browserSettings->staysOnTop=false;
+    }
+    */
+
     // We house the RUI webview and the web inspector in a splitter.
     QSplitter* splitter = new QSplitter(Qt::Vertical, this);
     setCentralWidget(splitter);
@@ -98,10 +119,12 @@ void MainWindow::init()
         setWindowFlags(flags);
     }
 
-    if (m_browserSettings->startMaximized)
-        setWindowState(windowState() | Qt::WindowMaximized);
-    else
-        resize(width, height);
+    resize(width, height);
+
+    if (m_browserSettings->startFullScreen) {
+        fullScreen(true);
+    }
+
 
     // Discovery Proxy
     m_discoveryProxy = DiscoveryProxy::Instance();
@@ -198,6 +221,7 @@ void MainWindow::createMenuBar()
     QMenu* viewMenu = menuBar()->addMenu("&View");
     viewMenu->addAction(m_page->action(QWebPage::Stop));
     viewMenu->addAction(m_page->action(QWebPage::Reload));
+    viewMenu->addAction("Full Screen", this, SLOT(fullScreenOn()));
     viewMenu->addSeparator();
     QAction* showNavigationBar = viewMenu->addAction("Navigation Bar", this, SLOT(toggleNavigationBar(bool)));
     showNavigationBar->setCheckable(true);
@@ -217,6 +241,32 @@ void MainWindow::createMenuBar()
     QAction* showInspectorAction = debugMenu->addAction("Web Inspector", this, SLOT(toggleWebInspector(bool)), QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_I));
     showInspectorAction->setCheckable(true);
     showInspectorAction->connect(m_inspector, SIGNAL(visibleChanged(bool)), SLOT(setChecked(bool)));
+}
+
+void MainWindow::fullScreenOn()
+{
+    fullScreen(true);
+}
+
+void MainWindow::fullScreen(bool on)
+{
+    if (on) {
+        menuBar()->hide();
+        m_navigationBar->hide();
+        m_inspector->setVisible(false);
+        setWindowState( windowState() | Qt::WindowFullScreen );
+
+    } else {
+        setWindowState( windowState() & ~Qt::WindowFullScreen );
+        showNormal();
+        if (m_browserSettings->hasMenuBar) {
+            menuBar()->show();
+        }
+        if (m_browserSettings->hasNavigationBar) {
+            m_navigationBar->show();
+        }
+        m_inspector->setVisible(m_browserSettings->hasWebInspector);
+    }
 }
 
 void MainWindow::openFile()
@@ -429,8 +479,11 @@ void MainWindow::onTitleChanged(const QString& title)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Escape) {
+    if (event->key() == (Qt::Key_Escape | Qt::Key_Control)) {
         home();
+    }
+    else if (event->key() == Qt::Key_Escape) {
+        fullScreen(false);
     }
 }
 

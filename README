@@ -30,6 +30,7 @@ instructions.
     - clicking on the UI entry
     - entering the number via keyboard
     - scrolling up/down until desired UI highlighted, then press enter
-    Return to the Navigation Page via escape key or back button.
+    Return to the Navigation Page via ctrl/escape key or back button.
+    NOTE: This was changed from just escape because escape is used to exit full screen mode
 
 
