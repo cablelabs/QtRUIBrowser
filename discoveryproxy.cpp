@@ -209,11 +209,11 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
                     urlElement = service.firstChildElement("controlURL");
                     if (!urlElement.isNull()) {
                         trimmedURL = trimElementText(urlElement.text());
-                        if (trimmedURL.contains("://")) {
+                        if ( false && trimmedURL.contains("://")) {
                             ruiService.m_controlURL = trimmedURL;
                         }
                         else {
-                            if (trimmedURL[0] == '/') {
+                            if ( false && trimmedURL[0] == '/') {
                                 ruiService.m_controlURL = hostURL + trimmedURL;
                             }
                             else {
@@ -263,7 +263,7 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
 
                     ruiDevice.m_serviceList.append(ruiService);
 
-                    //fprintf( stderr, "Request Compatible UIs: %s\n", ruiService.m_controlURL.toAscii().data());
+                    fprintf( stderr, "Request Compatible UIs: %s\n", ruiService.m_controlURL.toAscii().data());
                     requestCompatibleUIs(ruiService.m_controlURL);
                 }
 
