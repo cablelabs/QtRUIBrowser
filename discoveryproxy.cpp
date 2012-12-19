@@ -447,10 +447,12 @@ void DiscoveryProxy::httpReply(QNetworkReply* reply)
 // We have received a list of compatible UIs
 void DiscoveryProxy::soapHttpReply(QNetworkReply* reply)
 {
-    if (reply->error() != QNetworkReply::NoError) {
+    int errorCode = reply->error();
+    QString errorString = reply->errorString();
+    if (errorCode != QNetworkReply::NoError) {
         int httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         QString httpStatusMessage = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toByteArray();
-        fprintf( stderr, "DiscoveryProxy::soapHttpReply: error %d -  %s\n", httpStatus, httpStatusMessage.toAscii().data() );
+        fprintf( stderr, "DiscoveryProxy::soapHttpReply: error %d - %s \n   - (http status %d -  %s)\n", errorCode, errorString.toAscii().data(), httpStatus, httpStatusMessage.toAscii().data() );
         return;
     }
 

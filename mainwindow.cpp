@@ -479,11 +479,13 @@ void MainWindow::onTitleChanged(const QString& title)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == (Qt::Key_Escape | Qt::Key_Control)) {
+    if (event->key() == Qt::Key_Escape) {
         home();
     }
-    else if (event->key() == Qt::Key_Escape) {
-        fullScreen(false);
+    else if (event->key() == Qt::Key_F11) {
+
+        bool isFullScreen = (windowState() & Qt::WindowFullScreen);
+        fullScreen(!isFullScreen);
     }
 }
 
