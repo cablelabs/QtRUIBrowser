@@ -26,6 +26,7 @@
 #include <QVariant>
 #include <QVariantMap>
 #include <QTextDocument>
+//#include <QUrl>
 #include "ruiwebpage.h"
 
 DiscoveryProxy* DiscoveryProxy::m_pInstance = NULL;
@@ -131,6 +132,9 @@ void DiscoveryProxy::notifyListChanged()
         emit ruiListNotification();
     }
 }
+
+// TODO: I temporarily disabled support for absolute and slash(/) prefixed uris as it is breaking
+// the CES demo.
 
 // Here with a new root device description. Process the root device and any nested devices.
 void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& document)
@@ -452,7 +456,11 @@ void DiscoveryProxy::soapHttpReply(QNetworkReply* reply)
     if (errorCode != QNetworkReply::NoError) {
         int httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         QString httpStatusMessage = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toByteArray();
-        fprintf( stderr, "DiscoveryProxy::soapHttpReply: error %d - %s \n   - (http status %d -  %s)\n", errorCode, errorString.toAscii().data(), httpStatus, httpStatusMessage.toAscii().data() );
+        fprintf( stderr, "DiscoveryProxy::soapHttpReply: error %d - %s \n   - (http status %d -  %s)\n   - Request URI: %s\n",
+                 errorCode, errorString.toAscii().data(),
+                 httpStatus, httpStatusMessage.toAscii().data(),
+                 reply->url().toString().toAscii().data()
+                 );
         return;
     }
 

@@ -25,6 +25,8 @@ function pageLoaded() {
     // Restore our last known position
     screenIndex = discoveryProxy.screenIndex();
     scrollIndex = discoveryProxy.scrollIndex();
+    selectIndex = screenIndex + scrollIndex;
+
     refreshRUIList();
 }
 
