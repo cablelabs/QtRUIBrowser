@@ -13,5 +13,8 @@
         <file>www/rui_elementNameHighlight.png</file>
         <file>www/rui_elementNumberHighlight.png</file>
         <file>www/rui_background.jpg</file>
+        <file>www/rui_titleWipe.png</file>
+        <file>www/rui_background_demo.png</file>
+        <file>www/rui_background_dlna.png</file>
     </qresource>
 </RCC>

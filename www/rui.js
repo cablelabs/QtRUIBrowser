@@ -147,7 +147,8 @@ function generatePage() {
 
     for (var i=0; i < panelCount; i++) {
 
-        var yPos = 20 + (i*elementHeight);
+        //var yPos = 20 + (i*elementHeight);
+        var yPos = 60 + (i*elementHeight);
 
         // Panel div
         innerHTML += "<div class='panel' onclick='selectPanel("+i+")'>";
@@ -165,6 +166,12 @@ function generatePage() {
     innerHTML += "<div id='navFooter' class='arrowHidden' >";
     //innerHTML += "<img src='qrc:/www/rui_arrowDown.png' />"
     innerHTML += "</div>";
+
+    innerHTML += "<div id='selectInstructions' >";
+    innerHTML += "Select a Service"
+    innerHTML += "</div>";
+
+
 
     document.getElementById('navUI').innerHTML = innerHTML;
 }

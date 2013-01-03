@@ -1,9 +1,11 @@
 body
 {
     background-color: #004988;
-    background-image: url(qrc:/www/rui_background.jpg);
+    //background-image: url(qrc:/www/rui_background.jpg);
+    background-image: url(qrc:/www/rui_background_demo.png);
     background-repeat: no-repeat;
     background-size: 100% 100%;
+    overflow: hidden;
     //background-size: cover;
 }
 
@@ -108,7 +110,24 @@ body
     clear: both;
 }
 
-
+#selectInstructions
+{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 30px;
+    background-image: url(qrc:/www/rui_titleWipe.png);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    font-family : Sans-Serif;
+    color: White;
+    margin: 0px;
+    font-size : 25px;
+    font-weight: 400;
+    padding: 4px;
+    padding-left: 80px;
+}
 
 #tvRemote2
 {

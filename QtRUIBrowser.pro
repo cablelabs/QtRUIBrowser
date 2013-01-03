@@ -81,4 +81,7 @@ OTHER_FILES += \
     www/rui_background2.png \
     www/rui_elementNumberHighlight.png \
     www/rui_elementNameHighlight.png \
-    www/rui_background.jpg
+    www/rui_background.jpg \
+    www/rui_titleWipe.png \
+    www/rui_background_dlna.png \
+    www/rui_background_demo.png

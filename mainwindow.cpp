@@ -37,8 +37,8 @@
 
 #define TV_REMOTE_SIMULATOR 1
 
-#define RUI_WIDTH 800
-#define RUI_HEIGHT 562
+#define RUI_WIDTH 1000
+#define RUI_HEIGHT 700
 
 const char* rui_home = "qrc:/www/index.html";
 
@@ -255,6 +255,8 @@ void MainWindow::fullScreen(bool on)
         m_navigationBar->hide();
         m_inspector->setVisible(false);
         setWindowState( windowState() | Qt::WindowFullScreen );
+        QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
+
 
     } else {
         setWindowState( windowState() & ~Qt::WindowFullScreen );
@@ -266,6 +268,7 @@ void MainWindow::fullScreen(bool on)
             m_navigationBar->show();
         }
         m_inspector->setVisible(m_browserSettings->hasWebInspector);
+        QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
     }
 }
 
