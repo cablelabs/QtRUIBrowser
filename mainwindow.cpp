@@ -490,6 +490,16 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         bool isFullScreen = (windowState() & Qt::WindowFullScreen);
         fullScreen(!isFullScreen);
     }
+    else if (event->key() == Qt::Key_F1) {
+
+        QCursor* cursor = QApplication::overrideCursor();
+        if ( !cursor || cursor->shape() == Qt::ArrowCursor ) {
+            QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
+        }
+        else {
+            QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
+        }
+    }
 }
 
 void MainWindow::attachProxyObject()
