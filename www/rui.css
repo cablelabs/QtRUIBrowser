@@ -2,7 +2,8 @@ body
 {
     background-color: #004988;
     //background-image: url(qrc:/www/rui_background.jpg);
-    background-image: url(qrc:/www/rui_background_demo.png);
+    //background-image: url(qrc:/www/rui_background_demo.png);
+    background-image: url(qrc:/www/rui_background_dlna.png);
     background-repeat: no-repeat;
     background-size: 100% 100%;
     overflow: hidden;
