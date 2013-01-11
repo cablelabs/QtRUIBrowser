@@ -13,8 +13,9 @@
 #ifndef DISCOVERYPROXY_H
 #define DISCOVERYPROXY_H
 
-#include "NavDsc.h"
-#include "IDiscoveryAPI.h"
+//#include "NavDsc.h"
+//#include "IDiscoveryAPI.h"
+#include "DiscoveryWrapper.h"
 
 typedef std::map<std::basic_string<char>, sUPnPDevice> UPnPDeviceList;
 

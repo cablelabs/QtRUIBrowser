@@ -10,7 +10,7 @@ TEMPLATE = app
 
 INCLUDEPATH += \
     $${WEBKIT_ROOT}/Source/WebCore/Modules/discovery \
-#   $${WEBKIT_ROOT}/Source/WebKit/qt/WebCoreSupport \
+    $${WEBKIT_ROOT}/Source/WebKit/qt/WebCoreSupport \
     $${WEBKIT_ROOT}/Source/WTF
 
 SOURCES += \

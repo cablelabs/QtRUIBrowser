@@ -46,8 +46,7 @@ DiscoveryProxy::DiscoveryProxy()
     connect(this, SIGNAL(ruiDeviceAvailable(QString)), this, SLOT(requestDeviceDescription(QString)));
 
     // Start discovery
-    UPnPDeviceList deviceList = NavDsc::getInstance()->startUPnPInternalDiscovery(service_type, this );
-    processDeviceList(deviceList);
+    DiscoveryWrapper::startUPnPInternalDiscovery(service_type, this );
 
     // JavaScript state variables
     m_scrollIndex = 0;
