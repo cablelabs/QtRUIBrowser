@@ -331,7 +331,10 @@ function onKeydown(ev) {
         break;
 
     case 27:
+        // Will never get here, intercepted and "eaten" by application
         // escape (home)
+        //ev.preventDefault();
+        //ev.stopPropagation();
         break;
 
     default:

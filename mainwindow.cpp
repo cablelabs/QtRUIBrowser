@@ -480,8 +480,10 @@ void MainWindow::onTitleChanged(const QString& title)
         setWindowTitle(QString::fromLatin1("%1 - %2").arg(title).arg(QCoreApplication::applicationName()));
 }
 
+/* Old code - allowed javascript to swallow key presses
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
+    fprintf(stderr,"keyPressEvent\n");
     if (event->key() == Qt::Key_Escape) {
         home();
     }
@@ -500,6 +502,41 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
         }
     }
+}
+*/
+
+bool MainWindow::eventFilter(QObject* object, QEvent* event)
+{
+    if (event->type() == QEvent::KeyPress) {
+
+        QKeyEvent* keyEvent = (QKeyEvent*)event;
+
+
+        if (keyEvent->key() == Qt::Key_Escape) {
+            home();
+            return true;
+        }
+        else if (keyEvent->key() == Qt::Key_F11) {
+
+            bool isFullScreen = (windowState() & Qt::WindowFullScreen);
+            fullScreen(!isFullScreen);
+            return true;
+        }
+        else if (keyEvent->key() == Qt::Key_F1) {
+
+            QCursor* cursor = QApplication::overrideCursor();
+            if ( !cursor || cursor->shape() == Qt::ArrowCursor ) {
+                QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
+            }
+            else {
+                QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
+            }
+            return true;
+        }
+
+    }
+
+    return QMainWindow::eventFilter(object, event);
 }
 
 void MainWindow::attachProxyObject()

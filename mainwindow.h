@@ -60,8 +60,8 @@ protected slots:
 
 protected:
     QString addressUrl() const;
-    virtual void keyPressEvent(QKeyEvent *event);
-    //bool eventFilter(QObject* object, QEvent* event);
+    //virtual void keyPressEvent(QKeyEvent *event);
+    bool eventFilter(QObject* object, QEvent* event);
     private:
     void buildUI();
     void init();
