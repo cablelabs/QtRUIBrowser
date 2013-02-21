@@ -84,4 +84,6 @@ OTHER_FILES += \
     www/rui_background.jpg \
     www/rui_titleWipe.png \
     www/rui_background_dlna.png \
-    www/rui_background_demo.png
+    www/rui_background_demo.png \
+    www/jquery.1.5.0.min.js \
+    www/jquery-ui.1.8.9.min.js
