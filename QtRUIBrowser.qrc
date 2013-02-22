@@ -16,5 +16,7 @@
         <file>www/rui_titleWipe.png</file>
         <file>www/rui_background_demo.png</file>
         <file>www/rui_background_dlna.png</file>
+        <file>www/jquery.1.5.0.min.js</file>
+        <file>www/jquery-ui.1.8.9.min.js</file>
     </qresource>
 </RCC>
