@@ -17,7 +17,7 @@
 //#include "IDiscoveryAPI.h"
 #include "DiscoveryWrapper.h"
 
-typedef std::map<std::basic_string<char>, sUPnPDevice> UPnPDeviceList;
+typedef std::map<std::basic_string<char>, UPnPDevice> UPnPDeviceList;
 
 using namespace WebCore;
 
