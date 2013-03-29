@@ -266,7 +266,7 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
 
                     ruiDevice.m_serviceList.append(ruiService);
 
-                    fprintf( stderr, "Request Compatible UIs: %s\n", ruiService.m_controlURL.toAscii().data());
+                    fprintf( stderr, "Request Compatible UIs: %s\n", ruiService.m_controlURL.toUtf8().data());
                     requestCompatibleUIs(ruiService.m_controlURL);
                 }
 
@@ -281,7 +281,7 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
 
         } else {
             if ( m_userInterfaceMap.deviceExists(ruiDevice.m_uuid)) {
-                fprintf(stderr," - Removing device - no longer provides RUI service: %s - %s\n", ruiDevice.m_uuid.toAscii().data(), url.toAscii().data());
+                fprintf(stderr," - Removing device - no longer provides RUI service: %s - %s\n", ruiDevice.m_uuid.toUtf8().data(), url.toUtf8().data());
                 m_userInterfaceMap.removeDevice(ruiDevice.m_uuid);
             }
         }
@@ -295,7 +295,7 @@ void DiscoveryProxy::processUIList(const QString& url, const QDomDocument& docum
     QString serviceKey = url;
     QList<RUIInterface> serviceUIs;
 
-    //fprintf(stderr, "Processing UI List: %s\n", url.toAscii().data());
+    //fprintf(stderr, "Processing UI List: %s\n", url.toUtf8().data());
 
     QDomNodeList uiList = document.elementsByTagName("ui");
 
@@ -404,15 +404,15 @@ void DiscoveryProxy::requestCompatibleUIs(const QString& url)
 
     QString xml = soapMessage.message();
 
-    //fprintf( stderr, "soap message:\n%s\n", xml.toAscii().data());
+    //fprintf( stderr, "soap message:\n%s\n", xml.toUtf8().data());
 
     QNetworkRequest networkReq;
     networkReq.setHeader(QNetworkRequest::ContentTypeHeader, QLatin1String("text/xml;charset=utf-8"));
     networkReq.setRawHeader("SOAPAction", "GetCompatibleUIs");
-    networkReq.setRawHeader("User-Agent", userAgentString().toAscii().data());
+    networkReq.setRawHeader("User-Agent", userAgentString().toUtf8().data());
     networkReq.setUrl(QUrl(url));
 
-    QNetworkReply* reply = m_soapHttp.post(networkReq, xml.toAscii());
+    QNetworkReply* reply = m_soapHttp.post(networkReq, xml.toUtf8());
     reply->setReadBufferSize(1024*250); // 7.3.2.15.2
     //fprintf(stderr,"Read buffer size: %d\n", (int) reply->readBufferSize());
 }
@@ -423,7 +423,7 @@ void DiscoveryProxy::httpReply(QNetworkReply* reply)
     if (reply->error() != QNetworkReply::NoError) {
         int httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         QString httpStatusMessage = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toByteArray();
-        fprintf( stderr, "DiscoveryProxy::httpReply: error %d -  %s\n", httpStatus, httpStatusMessage.toAscii().data() );
+        fprintf( stderr, "DiscoveryProxy::httpReply: error %d -  %s\n", httpStatus, httpStatusMessage.toUtf8().data() );
         return;
     }
 
@@ -431,7 +431,7 @@ void DiscoveryProxy::httpReply(QNetworkReply* reply)
     QString url = reply->url().toString();
 
 
-    //fprintf( stderr, "http reply (RUI Server Description) from url: %s\n%s\n", url.toAscii().data(),xml.toAscii().data());
+    //fprintf( stderr, "http reply (RUI Server Description) from url: %s\n%s\n", url.toUtf8().data(),xml.toUtf8().data());
 
     // Parse the reply, create document
     QString errorMessage;
@@ -440,7 +440,7 @@ void DiscoveryProxy::httpReply(QNetworkReply* reply)
     QDomDocument document;
     if (!document.setContent(xml, &errorMessage, &errorLine, &errorColumn)) {
         fprintf(stderr,"setContent failed. Line: %d, Column: %d, Error: %s\n",
-                errorLine, errorColumn, errorMessage.toAscii().data() );
+                errorLine, errorColumn, errorMessage.toUtf8().data() );
         return;
     }
 
@@ -456,9 +456,9 @@ void DiscoveryProxy::soapHttpReply(QNetworkReply* reply)
         int httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         QString httpStatusMessage = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toByteArray();
         fprintf( stderr, "DiscoveryProxy::soapHttpReply: error %d - %s \n   - (http status %d -  %s)\n   - Request URI: %s\n",
-                 errorCode, errorString.toAscii().data(),
-                 httpStatus, httpStatusMessage.toAscii().data(),
-                 reply->url().toString().toAscii().data()
+                 errorCode, errorString.toUtf8().data(),
+                 httpStatus, httpStatusMessage.toUtf8().data(),
+                 reply->url().toString().toUtf8().data()
                  );
         return;
     }
@@ -472,7 +472,7 @@ void DiscoveryProxy::soapHttpReply(QNetworkReply* reply)
 
 
     QString url = reply->url().toString();
-    //fprintf( stderr, "DiscoveryProxy::soapHttpReply from url: %s\n%s\n", url.toAscii().data(),xml.toAscii().data());
+    //fprintf( stderr, "DiscoveryProxy::soapHttpReply from url: %s\n%s\n", url.toUtf8().data(),xml.toUtf8().data());
 
     // Parse the reply, create document
     QString errorMessage;
@@ -481,7 +481,7 @@ void DiscoveryProxy::soapHttpReply(QNetworkReply* reply)
     QDomDocument document;
     if (!document.setContent(xml, &errorMessage, &errorLine, &errorColumn)) {
         fprintf(stderr,"setContent failed. Line: %d, Column: %d, Error: %s\n",
-                errorLine, errorColumn, errorMessage.toAscii().data() );
+                errorLine, errorColumn, errorMessage.toUtf8().data() );
         return;
     }
 
@@ -504,7 +504,7 @@ QString DiscoveryProxy::trimElementText(const QString& str)
     int n = str.size() - 1;
     for (; n >= 0; --n) {
 
-        char c = str.at(n).toAscii();
+        char c = str.at(n).toLatin1();
         if (!(c == ' ' || c == '\n' || c == '\r' || c == '\t')) {
             temp = str.left(n+1);
             break;
@@ -514,7 +514,7 @@ QString DiscoveryProxy::trimElementText(const QString& str)
     // Trim beginning
     for (n=0; n < temp.size(); n++) {
 
-        char c = temp.at(n).toAscii();
+        char c = temp.at(n).toLatin1();
         if (!(c == ' ' || c == '\n' || c == '\r' || c == '\t')) {
             temp = temp.right(temp.size()-n);
             break;
@@ -538,7 +538,7 @@ QVariantList DiscoveryProxy::ruiList()
 // JavaScript output to application console.
 void DiscoveryProxy::console(const QString& str)
 {
-    fprintf( stderr,"%s\n", str.toAscii().data());
+    fprintf( stderr,"%s\n", str.toUtf8().data());
 }
 
 DiscoveryProxy* DiscoveryProxy::Instance()

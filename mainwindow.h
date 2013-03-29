@@ -16,8 +16,8 @@
 #include <QMainWindow>
 #include <QStringListModel>
 #include <QToolBar>
-//#include <QWebView>
-#include "qwebview.h"
+#include <QWebView>
+//#include "qwebview.h"
 #include "discoveryproxy.h"
 #include "qwebinspector.h"
 #include "webinspector.h"

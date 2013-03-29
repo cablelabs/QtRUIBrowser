@@ -7,11 +7,19 @@
 TEMPLATE = app
 
 # Define WEBKIT_ROOT environment variable external to this script - Do not use relative paths or ~/
+# 
 
 INCLUDEPATH += \
-    $${WEBKIT_ROOT}/Source/WebCore/Modules/discovery \
-    $${WEBKIT_ROOT}/Source/WebKit/qt/WebCoreSupport \
-    $${WEBKIT_ROOT}/Source/WTF
+    $(WEBKIT_ROOT)/Source/WebCore/Modules/discovery \
+    $(WEBKIT_ROOT)/Source/WebCore/platform/qt \
+    $(WEBKIT_ROOT)/Source/WebKit/qt/WebCoreSupport \
+    $(WEBKIT_ROOT)/Source/WTF
+
+CONFIG(debug, debug|release) {
+    INCLUDEPATH += $(WEBKIT_ROOT)/WebKitBuild/Debug/include/QtWebKitWidgets
+} else {
+    INCLUDEPATH += $(WEBKIT_ROOT)/WebKitBuild/Release/include/QtWebKitWidgets
+}
 
 SOURCES += \
     locationedit.cpp \
@@ -51,7 +59,7 @@ CONFIG(debug, debug|release) {
 }
 OBJECTS_DIR = obj
 
-QT += network webkit widgets xml
+QT += network webkit widgets webkitwidgets xml
 
 macx:QT += xml
 

@@ -25,10 +25,10 @@
 #include <QKeyEvent>
 #include <QAction>
 #include <QSplitter>
-//#include <QWebView>
-#include "qwebview.h"
-//#include <QWebPage>
-#include "qwebpage.h"
+#include <QWebView>
+//#include "qwebview.h"
+#include <QWebPage>
+//#include "qwebpage.h"
 #include <QCompleter>
 #include <QUrl>
 #include <QTimer>
@@ -387,7 +387,7 @@ void MainWindow::changeLocation()
 void MainWindow::dumpHtml()
 {
     QString html = m_page->mainFrame()->toHtml();
-    fprintf(stderr,"\nHTML:\n%s\n", html.toAscii().data());
+    fprintf(stderr,"\nHTML:\n%s\n", html.toUtf8().data());
 }
 
 void MainWindow::dumpUserInterfaceMap()
@@ -417,7 +417,7 @@ void MainWindow::enableHttpProxy()
     } else if ( m_browserSettings->proxyType.compare("Socks5",Qt::CaseInsensitive) == 0) {
         proxy.setType(QNetworkProxy::Socks5Proxy);
     } else {
-        fprintf(stderr,"Invalid proxy type in .ini file: %s. Should be Http or Socks5. Defaulting to Http\n", m_browserSettings->proxyType.toAscii().data());
+        fprintf(stderr,"Invalid proxy type in .ini file: %s. Should be Http or Socks5. Defaulting to Http\n", m_browserSettings->proxyType.toUtf8().data());
         proxy.setType(QNetworkProxy::HttpProxy);
         m_browserSettings->proxyType = "Http";
         m_browserSettings->save();

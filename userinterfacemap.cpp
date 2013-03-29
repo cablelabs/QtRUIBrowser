@@ -76,7 +76,7 @@ void UserInterfaceMap::removeDevice(const QString& uuid) {
             removeServiceUIs(serviceKey);
         }
 
-        //fprintf(stderr," - Removing device: %s [%s] %s\n", uuid.toAscii().data(), device.m_baseURL.toAscii().data(), device.m_friendlyName.toAscii().data());
+        //fprintf(stderr," - Removing device: %s [%s] %s\n", uuid.toUtf8().data(), device.m_baseURL.toUtf8().data(), device.m_friendlyName.toUtf8().data());
 
     }
 
@@ -104,8 +104,8 @@ void UserInterfaceMap::dumpToConsole()
      while (i.hasNext()) {
          i.next();
          const RUIDevice device = i.value();
-         fprintf( stderr,"- Device: %s [%s]\n", device.m_friendlyName.toAscii().data(), device.m_uuid.toAscii().data());
-         fprintf( stderr,"  - baseURL: %s\n", device.m_baseURL.toAscii().data());
+         fprintf( stderr,"- Device: %s [%s]\n", device.m_friendlyName.toUtf8().data(), device.m_uuid.toUtf8().data());
+         fprintf( stderr,"  - baseURL: %s\n", device.m_baseURL.toUtf8().data());
 
          QListIterator<RUIService> iterator(device.m_serviceList);
 
@@ -113,12 +113,12 @@ void UserInterfaceMap::dumpToConsole()
 
              RUIService service = iterator.next();
              QString serviceKey = service.m_controlURL;
-             fprintf( stderr,"  - Service: %s\n", service.m_serviceID.toAscii().data());
-             fprintf( stderr,"    - type: %s\n", service.m_serviceType.toAscii().data());
-             fprintf( stderr,"    - baseURL: %s\n", service.m_baseURL.toAscii().data());
-             fprintf( stderr,"    - eventURL: %s\n", service.m_eventURL.toAscii().data());
-             fprintf( stderr,"    - controlURL: %s\n", service.m_controlURL.toAscii().data());
-             fprintf( stderr,"    - descriptionURL: %s\n", service.m_descriptionURL.toAscii().data());
+             fprintf( stderr,"  - Service: %s\n", service.m_serviceID.toUtf8().data());
+             fprintf( stderr,"    - type: %s\n", service.m_serviceType.toUtf8().data());
+             fprintf( stderr,"    - baseURL: %s\n", service.m_baseURL.toUtf8().data());
+             fprintf( stderr,"    - eventURL: %s\n", service.m_eventURL.toUtf8().data());
+             fprintf( stderr,"    - controlURL: %s\n", service.m_controlURL.toUtf8().data());
+             fprintf( stderr,"    - descriptionURL: %s\n", service.m_descriptionURL.toUtf8().data());
 
              if (m_serviceUIs.contains(serviceKey)) {
 
@@ -130,8 +130,8 @@ void UserInterfaceMap::dumpToConsole()
 
                      RUIInterface ui = iterator.next();
 
-                     fprintf( stderr,"    - ui: %s [%s]\n", ui.m_name.toAscii().data(), ui.m_uiID.toAscii().data());
-                     fprintf( stderr,"      - description: %s\n", ui.m_description.toAscii().data());
+                     fprintf( stderr,"    - ui: %s [%s]\n", ui.m_name.toUtf8().data(), ui.m_uiID.toUtf8().data());
+                     fprintf( stderr,"      - description: %s\n", ui.m_description.toUtf8().data());
 
                      QListIterator<RUIIcon> iconIterator(ui.m_iconList);
 
@@ -139,11 +139,11 @@ void UserInterfaceMap::dumpToConsole()
 
                          RUIIcon icon = iconIterator.next();
                          fprintf( stderr,"      - icon: %sx%s (%s bit, %s) - %s\n",
-                                  icon.m_width.toAscii().data(),
-                                  icon.m_height.toAscii().data(),
-                                  icon.m_depth.toAscii().data(),
-                                  icon.m_mimeType.toAscii().data(),
-                                  icon.m_url.toAscii().data());
+                                  icon.m_width.toUtf8().data(),
+                                  icon.m_height.toUtf8().data(),
+                                  icon.m_depth.toUtf8().data(),
+                                  icon.m_mimeType.toUtf8().data(),
+                                  icon.m_url.toUtf8().data());
                      }
 
                      QListIterator<RUIProtocol> protocolIterator(ui.m_protocolList);
@@ -152,8 +152,8 @@ void UserInterfaceMap::dumpToConsole()
 
                          RUIProtocol protocol = protocolIterator.next();
                          fprintf( stderr,"      - protocol: %s (%s)\n",
-                                  protocol.m_shortName.toAscii().data(),
-                                  protocol.m_protocolInfo.toAscii().data());
+                                  protocol.m_shortName.toUtf8().data(),
+                                  protocol.m_protocolInfo.toUtf8().data());
 
                          QListIterator<QString> uriIterator(protocol.m_uriList);
 
@@ -161,7 +161,7 @@ void UserInterfaceMap::dumpToConsole()
 
                              QString uri = uriIterator.next();
                              fprintf( stderr,"        - uri: %s\n",
-                                      uri.toAscii().data());
+                                      uri.toUtf8().data());
                          }
                      }
 
@@ -177,7 +177,7 @@ void UserInterfaceMap::dumpToConsole()
      while (iter_rts.hasNext()) {
           iter_rts.next();
           const QString server = iter_rts.key();
-          fprintf( stderr,"- %s\n", server.toAscii().data());
+          fprintf( stderr,"- %s\n", server.toUtf8().data());
     }
 }
 
@@ -218,7 +218,7 @@ QVariantList UserInterfaceMap::generateUIList()
                     m_transportServers.insert(host, host);
                     if (m_transportServers.contains(host) == false) {
                         fprintf(stderr,"Failed to add %s to map. Count: %d",
-                                host.toAscii().data(), m_transportServers.count());
+                                host.toUtf8().data(), m_transportServers.count());
                     }
                 }
             }
