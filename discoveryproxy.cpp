@@ -408,7 +408,7 @@ void DiscoveryProxy::requestCompatibleUIs(const QString& url)
 
     QNetworkRequest networkReq;
     networkReq.setHeader(QNetworkRequest::ContentTypeHeader, QLatin1String("text/xml;charset=utf-8"));
-    networkReq.setRawHeader("SOAPAction", "GetCompatibleUIs");
+    networkReq.setRawHeader("SOAPAction", "urn:schemas-upnp-org:service:RemoteUIServer:1#GetCompatibleUIs");
     networkReq.setRawHeader("User-Agent", userAgentString().toUtf8().data());
     networkReq.setUrl(QUrl(url));
 
