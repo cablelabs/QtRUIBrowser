@@ -8,9 +8,9 @@ instructions.
 	# With the latest WebKit distro, the following variable needs to be set before running qmake:
 	export QMAKEPATH=<yourPath>/WebKit/Tools/qmake
 
-    # This no longer works (?!)
-    # qmake .
-    
+    # This should point to your WebKit checkout
+    export WEBKIT_PATH=~/workspace/webkit
+
     # This makes a debug version
     qmake QtRUIBrowser.pro
     
