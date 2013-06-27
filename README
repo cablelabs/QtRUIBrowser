@@ -9,7 +9,7 @@ instructions.
 	export QMAKEPATH=<yourPath>/WebKit/Tools/qmake
 
     # This should point to your WebKit checkout
-    export WEBKIT_PATH=~/workspace/webkit
+    export WEBKIT_ROOT=~/workspace/webkit
 
     # This makes a debug version
     qmake QtRUIBrowser.pro
