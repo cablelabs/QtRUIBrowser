@@ -21,6 +21,10 @@ CONFIG(debug, debug|release) {
     INCLUDEPATH += $(WEBKIT_ROOT)/WebKitBuild/Release/include/QtWebKitWidgets
 }
 
+QMAKE_CXXFLAGS += $$(CXXFLAGS)
+QMAKE_CFLAGS += $$(CFLAGS)
+QMAKE_LFLAGS += $$(LDFLAGS)
+
 SOURCES += \
     locationedit.cpp \
     qtruibrowser.cpp \
