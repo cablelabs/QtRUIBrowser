@@ -321,7 +321,16 @@ void DiscoveryProxy::processUIList(const QString& url, const QDomDocument& docum
                 RUIIcon ruiIcon;
 
                 ruiIcon.m_mimeType = elementTextForTag(icon, "mimetype");
-                ruiIcon.m_url = baseURL + elementTextForTag(icon, "url");
+                QString iconUrl = elementTextForTag(icon, "url");
+                if (iconUrl.startsWith('/')) {
+                    // Get base URL without path for slash prefixed relative URIs
+                    QUrl qurl = QUrl(baseURL);
+                    QString hostURL = qurl.toString(QUrl::RemovePath);
+
+                    ruiIcon.m_url = hostURL + iconUrl;
+                } else {
+                    ruiIcon.m_url = baseURL + iconUrl;
+                }
                 ruiIcon.m_width = elementTextForTag(icon, "width");
                 ruiIcon.m_height = elementTextForTag(icon, "height");
                 ruiIcon.m_depth = elementTextForTag(icon, "depth");
