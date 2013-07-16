@@ -216,11 +216,11 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
                             ruiService.m_controlURL = trimmedURL;
                         }
                         else {
-                            if ( false && trimmedURL[0] == '/') {
+                            if (trimmedURL[0] == '/') {
                                 ruiService.m_controlURL = hostURL + trimmedURL;
                             }
                             else {
-                                ruiService.m_controlURL = baseURL + trimmedURL;
+                                ruiService.m_controlURL = baseURL + "/" + trimmedURL;
                             }
                         }
                     }
@@ -237,7 +237,7 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
                                 ruiService.m_descriptionURL = hostURL + trimmedURL;
                             }
                             else {
-                                ruiService.m_descriptionURL = baseURL + trimmedURL;
+                                ruiService.m_descriptionURL = baseURL + "/" + trimmedURL;
                             }
                         }
                     }
@@ -254,7 +254,7 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
                                 ruiService.m_eventURL = hostURL + trimmedURL;
                             }
                             else {
-                                ruiService.m_eventURL = baseURL + trimmedURL;
+                                ruiService.m_eventURL = baseURL + "/" + trimmedURL;
                             }
                         }
                     }
