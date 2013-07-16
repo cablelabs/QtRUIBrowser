@@ -8,8 +8,6 @@ var flipped = false;    // flipped == true means the 'back' elements are in fron
 var uiElements;         // array of innerHtml content for each rui
 var canScroll;          // uiElements.length > panelCount
 var elementHeight = 86; // based on height of background images for the elements
-var frontUIIDs;
-var backUIIDs;
 var uiElementCount = 0;
 
 
@@ -133,10 +131,6 @@ function generatePage() {
 
     var innerHTML = "";
 
-    // Used to check for currency
-    frontUIIDs = new Array();
-    backUIIDs = new Array();
-
     // Scroll up indicator
     innerHTML += "<div id='navHeader' class='arrowHidden' >";
     //innerHTML += "<img src='qrc:/www/rui_arrowUp.png' />"
@@ -198,13 +192,11 @@ function loadPanelElements(face, start) {
             uiID = uiElements[index].uiID;
         }
 
-        if ((face == "front") && (uiID !== frontUIIDs[i])) {
+        if (face == "front") {
             $(elems[i]).html(html);
-            frontUIIDs[i] = uiID;
         }
-        else if ((face == "back") && (uiID !== backUIIDs[i])) {
+        else if (face == "back") {
             $(elems[i]).html(html);
-            backUIIDs[i] = uiID;
         }
     }
 }
