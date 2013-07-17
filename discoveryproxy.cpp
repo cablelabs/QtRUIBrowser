@@ -77,6 +77,8 @@ void DiscoveryProxy::setScreenIndex(int index)
 // Here with an updated server list from the Disovery module (callback)
 void DiscoveryProxy::serverListUpdate(std::string type, UPnPDeviceList *deviceList)
 {
+	fprintf(stderr,"\nServer List Update: Type: %s\n", type.c_str());
+
     if ( type.compare(service_type) != 0 ) {
         fprintf(stderr,"\nServer List Update: Invalid service type: %s\n", type.c_str());
     } else {
@@ -87,6 +89,7 @@ void DiscoveryProxy::serverListUpdate(std::string type, UPnPDeviceList *deviceLi
 // Here on a SLOT to execute http request on main thread (signaled from serverListUpdate()
 void DiscoveryProxy::requestDeviceDescription( QString url)
 {
+	fprintf(stderr,"Request Device Description. url: %s\n", url.toUtf8().data());
     QNetworkRequest networkReq;
     networkReq.setHeader(QNetworkRequest::ContentTypeHeader, QLatin1String("text/xml;charset=utf-8"));
     networkReq.setUrl(url);
@@ -138,6 +141,7 @@ void DiscoveryProxy::notifyListChanged()
 // Here with a new root device description. Process the root device and any nested devices.
 void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& document)
 {
+	fprintf(stderr,"processDevice. url: %s\n", url.toUtf8().data());
     QString baseURL = url.left(url.lastIndexOf("/"));
 
     // Optional and deprecated.
@@ -171,6 +175,7 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
         // <dlna:X_DLNADOC>DMS-1.50</dlna:X_DLNADOC>
         QDomElement dlnaDoc = device.firstChildElement("dlna:X_DLNADOC");
         if (dlnaDoc.isNull()) {
+			//fprintf(stderr,"no dlna:X_DLNADOC.\n");
             continue;
         }
 
@@ -212,11 +217,11 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
                     urlElement = service.firstChildElement("controlURL");
                     if (!urlElement.isNull()) {
                         trimmedURL = trimElementText(urlElement.text());
-                        if ( false && trimmedURL.contains("://")) {
+                        if ( trimmedURL.contains("://")) {
                             ruiService.m_controlURL = trimmedURL;
                         }
                         else {
-                            if ( false && trimmedURL[0] == '/') {
+                            if ( trimmedURL[0] == '/') {
                                 ruiService.m_controlURL = hostURL + trimmedURL;
                             }
                             else {
@@ -269,6 +274,9 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
                     fprintf( stderr, "Request Compatible UIs: %s\n", ruiService.m_controlURL.toUtf8().data());
                     requestCompatibleUIs(ruiService.m_controlURL);
                 }
+				else {
+					fprintf( stderr, "No compatible service\n");
+				}
 
                 // Loop through all of the services for this device.
                 service = service.nextSiblingElement(tag).toElement();
@@ -295,7 +303,7 @@ void DiscoveryProxy::processUIList(const QString& url, const QDomDocument& docum
     QString serviceKey = url;
     QList<RUIInterface> serviceUIs;
 
-    //fprintf(stderr, "Processing UI List: %s\n", url.toUtf8().data());
+    fprintf(stderr, "Processing UI List: %s\n", url.toUtf8().data());
 
     QDomNodeList uiList = document.elementsByTagName("ui");
 
@@ -322,7 +330,10 @@ void DiscoveryProxy::processUIList(const QString& url, const QDomDocument& docum
 
                 ruiIcon.m_mimeType = elementTextForTag(icon, "mimetype");
                 QString iconUrl = elementTextForTag(icon, "url");
-                if (iconUrl.startsWith('/')) {
+                if ( iconUrl.contains("://")) {
+                    ruiIcon.m_url = iconUrl;
+                } 
+				else if (iconUrl.startsWith('/')) {
                     // Get base URL without path for slash prefixed relative URIs
                     QUrl qurl = QUrl(baseURL);
                     QString hostURL = qurl.toString(QUrl::RemovePath);
@@ -405,6 +416,8 @@ QString DiscoveryProxy::userAgentString() {
 // Here with a qualified controlURL for a RemoteUIServer service.
 void DiscoveryProxy::requestCompatibleUIs(const QString& url)
 {
+    fprintf( stderr, "- requesting compatible UIs from: %s\n", url.toUtf8().data());
+
     // Build our soap message
     SoapMessage soapMessage;
     soapMessage.setMethod("u:GetCompatibleUIs", "xmlns:u", "urn:schemas-upnp-org:service:RemoteUIServer:1");
