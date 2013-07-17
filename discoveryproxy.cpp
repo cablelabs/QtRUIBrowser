@@ -135,9 +135,6 @@ void DiscoveryProxy::notifyListChanged()
     }
 }
 
-// TODO: I temporarily disabled support for absolute and slash(/) prefixed uris as it is breaking
-// the CES demo.
-
 // Here with a new root device description. Process the root device and any nested devices.
 void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& document)
 {
