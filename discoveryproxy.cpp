@@ -227,11 +227,11 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
                     urlElement = service.firstChildElement("controlURL");
                     if (!urlElement.isNull()) {
                         trimmedURL = trimElementText(urlElement.text());
-                        if ( trimmedURL.contains("://")) {
+                        if (trimmedURL.contains("://")) {
                             ruiService.m_controlURL = trimmedURL;
                         }
                         else {
-                            if ( trimmedURL[0] == '/') {
+                            if (trimmedURL[0] == '/') {
                                 ruiService.m_controlURL = hostURL + trimmedURL;
                             }
                             else {
@@ -455,7 +455,7 @@ void DiscoveryProxy::httpReply(QNetworkReply* reply)
     if (reply->error() != QNetworkReply::NoError) {
         int httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         QString httpStatusMessage = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toByteArray();
-        fprintf( stderr, "DiscoveryProxy::httpReply: error %d -  %s\n", httpStatus, httpStatusMessage.toUtf8().data() );
+        fprintf( stderr, "DiscoveryProxy::httpReply: error number %i error %d -  %s\n", reply->error(), httpStatus, httpStatusMessage.toUtf8().data() );
         return;
     }
 

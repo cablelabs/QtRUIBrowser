@@ -62,8 +62,8 @@ void SoapMessage::addMethodArgument(const QString& name, const QString& value)
 void SoapMessage::generateEnvelope()
 {
     QDomElement root = m_document.createElement(kElementEnvelope);
-    root.setAttribute("xmlns:s","http://schemas.xmlsoap.org/soap/envelope");
-    root.setAttribute("s:encodingStyle","http://schemas.xmlsoap.org/soap/encoding");
+    root.setAttribute("xmlns:s","http://schemas.xmlsoap.org/soap/envelope/");
+    root.setAttribute("s:encodingStyle","http://schemas.xmlsoap.org/soap/encoding/");
     m_document.appendChild(root);
 
     m_body = m_document.createElement(kElementBody);
