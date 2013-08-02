@@ -6,9 +6,9 @@ instructions.
 ## Build
 
     :::bash
-    # With the latest WebKit distro, the following variable needs to be set before running qmake:
-    # Note: This probably shouldn't be necessary if your PATH is correct?
-    export QMAKEPATH=<yourPath>/WebKit/Tools/qmake
+    # Your path should be setup already from building WebKit, like so:
+    export QTDIR=~/workspace/qt5/qtbase
+    export PATH=$QTDIR/bin:$PATH
 
     # This should point to your WebKit checkout
     export WEBKIT_ROOT=~/workspace/webkit
@@ -18,6 +18,7 @@ instructions.
     
     # This makes a release version
     qmake QtRUIBrowser.pro CONFIG+=release CONFIG-=debug
+
     make
 
 ## Run
