@@ -95,16 +95,14 @@ void UserInterfaceMap::removeDevice(const QString& uuid)
 
 void UserInterfaceMap::addServiceUIs(const QString& serviceKey, const QList<RUIInterface>& uiList)
 {
-    m_mutex.lock();
+    QMutexLocker lock(&m_mutex);
     m_serviceUIs.insert(serviceKey, uiList);
-    m_mutex.unlock();
 }
 
 void UserInterfaceMap::removeServiceUIs(const QString& serviceKey)
 {
-    m_mutex.lock();
+    QMutexLocker lock(&m_mutex);
     m_serviceUIs.remove(serviceKey);
-    m_mutex.unlock();
 }
 
 void UserInterfaceMap::dumpToConsole()
@@ -188,7 +186,7 @@ QVariantList UserInterfaceMap::generateUIList()
 {
     QVariantList list;
 
-    m_mutex.lock();
+    QMutexLocker lock(&m_mutex);
     m_transportServers.clear();
 
     QMapIterator<QString, QList<RUIInterface> > i(m_serviceUIs);
@@ -221,8 +219,6 @@ QVariantList UserInterfaceMap::generateUIList()
             }
         }
     }
-
-    m_mutex.unlock();
     return list;
 }
 
