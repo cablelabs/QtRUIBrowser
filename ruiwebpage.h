@@ -36,6 +36,9 @@ public:
     RUIWebPage(QObject* parent = 0);
 
     QString userAgentForUrl(const QUrl& url) const;
+
+private slots:
+    void handleSslErrors(QNetworkReply* reply, const QList<QSslError> &errors);
 };
 
 #endif

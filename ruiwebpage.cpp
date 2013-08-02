@@ -28,9 +28,17 @@
 #include "discoveryproxy.h"
 #include "browsersettings.h"
 
+#include <QMessageBox>
+#include <QNetworkReply>
+#include <QSslError>
+#include <QtDebug>
+
 RUIWebPage::RUIWebPage(QObject* parent)
     : QWebPage(parent)
 {
+    connect(networkAccessManager(),
+        SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError> &)), this,
+        SLOT(handleSslErrors(QNetworkReply*, const QList<QSslError> &)));  
 }
 
 QString RUIWebPage::userAgentForUrl(const QUrl& url) const
@@ -53,4 +61,22 @@ QString RUIWebPage::userAgentForUrl(const QUrl& url) const
     }
 
     return userAgent;
+}
+
+void RUIWebPage::handleSslErrors(QNetworkReply* reply, const QList<QSslError> &errors)
+{
+    QStringList errorMessages;
+    foreach (QSslError e, errors) {
+        errorMessages += e.errorString();
+    }
+
+    QString text = "The following SSL errors have occurred:\n\n" +
+        errorMessages.join("\n") +
+        "\n\nYour connection to this site is not secure. Do you want to continue anyway?";
+    QMessageBox box(QMessageBox::Critical, "SSL Errors", text,
+        QMessageBox::Yes | QMessageBox::No);
+    box.setDefaultButton(QMessageBox::No);
+    if (box.exec() == QMessageBox::Yes) {
+        reply->ignoreSslErrors(errors);
+    }
 }
