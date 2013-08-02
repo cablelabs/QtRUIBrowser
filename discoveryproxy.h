@@ -26,8 +26,6 @@
 #ifndef DISCOVERYPROXY_H
 #define DISCOVERYPROXY_H
 
-//#include "NavDsc.h"
-//#include "IDiscoveryAPI.h"
 #include "DiscoveryWrapper.h"
 
 typedef std::map<std::basic_string<char>, UPnPDevice> UPnPDeviceList;
@@ -57,7 +55,6 @@ public:
     bool m_home;
 
 private:
-
     DiscoveryProxy();
     static DiscoveryProxy* m_pInstance;
     UserInterfaceMap m_userInterfaceMap;
@@ -72,13 +69,12 @@ private:
     QString trimElementText(const QString&);
     QString elementTextForTag(const QDomNode& parent, const QString& tag);
     QString userAgentString();
-signals:
 
+signals:
     void ruiListNotification();
     void ruiDeviceAvailable(QString);
 
 public slots:
-
     // Public JavaScript API (bridge)
     QVariantList ruiList();
     void console(const QString&);
@@ -88,7 +84,6 @@ public slots:
     void setScreenIndex(int index);
 
 private slots:
-
     // IDiscoveryAPI
     virtual void serverListUpdate(std::string type, UPnPDeviceList *devs);
 
@@ -100,8 +95,7 @@ private slots:
     virtual void sendEvent(std::string, std::string, std::string) {}
     virtual void onError(int) {}
     virtual void onZCError(int) {}
-    virtual void receiveID(long idFromHN) {}
-
+    virtual void receiveID(long) {}
 
     // For executing on main thread.
     void requestDeviceDescription(QString);
@@ -116,7 +110,6 @@ public:
     // from a rui page, the last selected row and scroll position are restored.
     int m_scrollIndex;
     int m_screenIndex;
-
 };
 
 #endif // DISCOVERYPROXY_H

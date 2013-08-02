@@ -45,7 +45,6 @@
 class RUIIcon : public QObject
 {
 public:
-
     RUIIcon() : QObject() {}
     RUIIcon(const RUIIcon& other) : QObject() { *this = other; }
     RUIIcon& operator=(const RUIIcon& other)
@@ -79,7 +78,6 @@ public:
 class RUIProtocol : public QObject
 {
 public:
-
     RUIProtocol() : QObject() {}
     RUIProtocol(const RUIProtocol& other) : QObject() { *this = other; }
     RUIProtocol& operator=(const RUIProtocol& other)
@@ -110,7 +108,6 @@ public:
 class RUIInterface : public QObject
 {
 public:
-
     RUIInterface() : QObject() {}
     RUIInterface(const RUIInterface& other) : QObject() { *this = other; }
     RUIInterface& operator=(const RUIInterface& other)
@@ -160,7 +157,6 @@ public:
 class RUIService : public QObject
 {
 public:
-
     RUIService() : QObject() {}
     RUIService(const RUIService &other) : QObject() { *this = other; }
     RUIService& operator=(const RUIService& other)
@@ -186,7 +182,6 @@ public:
 class RUIDevice : public QObject
 {
 public:
-
     RUIDevice() : QObject() {}
     RUIDevice(const RUIDevice& other) : QObject() { *this = other; }
     RUIDevice& operator=(const RUIDevice& other)
@@ -212,8 +207,6 @@ public:
 
 class UserInterfaceMap : public QObject
 {
-    Q_OBJECT
-
 public:
     explicit UserInterfaceMap(QObject *parent = 0);
 
@@ -231,16 +224,10 @@ public:
     void dumpToConsole();
 
 private:
-
     QMap<QString, RUIDevice> m_deviceMap;
     QMap<QString, QList<RUIInterface> > m_serviceUIs;
     QMutex m_mutex;
     QMap<QString, QString> m_transportServers;
-    
-signals:
-
-public slots:
-    
 };
 
 #endif // USERINTERFACEMAP_H

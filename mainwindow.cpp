@@ -39,9 +39,7 @@
 #include <QAction>
 #include <QSplitter>
 #include <QWebView>
-//#include "qwebview.h"
 #include <QWebPage>
-//#include "qwebpage.h"
 #include <QCompleter>
 #include <QUrl>
 #include <QTimer>
@@ -80,16 +78,6 @@ void MainWindow::init()
         fprintf(stderr,"\n  usage:  QtRUIBrowser [-fullscreen] [url]\n\n");
         ::exit(1);
     }
-
-    /*
-    if (m_browserSettings->startFullScreen) {
-        //m_browserSettings->hasMenuBar=false;
-        m_browserSettings->hasNavigationBar=false;
-        //m_browserSettings->hasTitleBar=false;
-        m_browserSettings->hasWebInspector=false;
-        m_browserSettings->staysOnTop=false;
-    }
-    */
 
     // We house the RUI webview and the web inspector in a splitter.
     QSplitter* splitter = new QSplitter(Qt::Vertical, this);
@@ -145,8 +133,8 @@ void MainWindow::init()
     // Connect proxy load signals
     attachProxyObject();
     connect(m_page->mainFrame(), SIGNAL(loadStarted()), this, SLOT(onLoadStarted()));
-    connect( m_view, SIGNAL(loadFinished(bool)), this, SLOT(onPageLoaded(bool)) );
-    connect( m_page->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(onJavaScriptWindowObjectCleared()) );
+    connect(m_view, SIGNAL(loadFinished(bool)), this, SLOT(onPageLoaded(bool)));
+    connect(m_page->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(onJavaScriptWindowObjectCleared()));
 }
 
 void MainWindow::buildUI()
@@ -222,12 +210,10 @@ void MainWindow::buildUI()
 void MainWindow::createMenuBar()
 {
     QMenu* fileMenu = menuBar()->addMenu("&File");
-    //fileMenu->addAction("New Window", this, SLOT(newWindow()), QKeySequence::New);
     fileMenu->addAction(tr("Open File..."), this, SLOT(openFile()), QKeySequence::Open);
     fileMenu->addAction(tr("Open Location..."), this, SLOT(openLocation()), QKeySequence(Qt::CTRL | Qt::Key_L));
     fileMenu->addAction("Close Window", this, SLOT(close()), QKeySequence::Close);
     fileMenu->addSeparator();
-    //fileMenu->addAction("Take Screen Shot...", this, SLOT(screenshot()));
     fileMenu->addSeparator();
     fileMenu->addAction("Quit", QApplication::instance(), SLOT(closeAllWindows()), QKeySequence(Qt::CTRL | Qt::Key_Q));
 
@@ -269,7 +255,6 @@ void MainWindow::fullScreen(bool on)
         m_inspector->setVisible(false);
         setWindowState( windowState() | Qt::WindowFullScreen );
         QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
-
 
     } else {
         setWindowState( windowState() & ~Qt::WindowFullScreen );
@@ -481,7 +466,6 @@ void MainWindow::onLoadStarted()
         m_urlEdit->setPageIcon(QIcon());
     }
 
-    //fprintf(stderr,"onLoadStarted. (m_home=false)\n");
     m_discoveryProxy->m_home = false;
 }
 
@@ -492,31 +476,6 @@ void MainWindow::onTitleChanged(const QString& title)
     else
         setWindowTitle(QString::fromLatin1("%1 - %2").arg(title).arg(QCoreApplication::applicationName()));
 }
-
-/* Old code - allowed javascript to swallow key presses
-void MainWindow::keyPressEvent(QKeyEvent *event)
-{
-    fprintf(stderr,"keyPressEvent\n");
-    if (event->key() == Qt::Key_Escape) {
-        home();
-    }
-    else if (event->key() == Qt::Key_F11) {
-
-        bool isFullScreen = (windowState() & Qt::WindowFullScreen);
-        fullScreen(!isFullScreen);
-    }
-    else if (event->key() == Qt::Key_F1) {
-
-        QCursor* cursor = QApplication::overrideCursor();
-        if ( !cursor || cursor->shape() == Qt::ArrowCursor ) {
-            QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
-        }
-        else {
-            QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
-        }
-    }
-}
-*/
 
 bool MainWindow::eventFilter(QObject* object, QEvent* event)
 {
@@ -564,14 +523,10 @@ void MainWindow::onJavaScriptWindowObjectCleared()
 {
     QString url = m_view->url().toString();
 
-    //fprintf(stderr,"onJavaScriptWindowObjectCleared: %s\n", url.toAscii().data());
-
-    if ( url.compare(rui_home) == 0) {
+    if (url.compare(rui_home) == 0) {
         attachProxyObject();
-        //fprintf(stderr,"onJavaScriptWindowObjectCleared - Attaching proxy object\n");
     } else {
         m_discoveryProxy->m_home = false;
-        //fprintf(stderr,"onJavaScriptWindowObjectCleared. (m_home=false)");
 
     }
 }
@@ -581,11 +536,7 @@ void MainWindow::onJavaScriptWindowObjectCleared()
 void MainWindow::onPageLoaded(bool ok)
 {
     if (ok) {
-
         QString url = m_view->url().toString();
-
         m_discoveryProxy->m_home = (url.compare(rui_home) == 0);
-
-        //fprintf(stderr,"onPageLoaded: %s (m_home = %s)\n", url.toAscii().data(), m_discoveryProxy->m_home ? "true" : "false");
     }
 }

@@ -34,18 +34,20 @@ UserInterfaceMap::UserInterfaceMap(QObject *parent) :
 {
 }
 
-void UserInterfaceMap::addDevice(const RUIDevice& device) {
+void UserInterfaceMap::addDevice(const RUIDevice& device)
+{
 
     m_deviceMap.insert(device.m_uuid, device);
 }
 
-bool UserInterfaceMap::deviceExists(const QString& uuid) {
+bool UserInterfaceMap::deviceExists(const QString& uuid)
+{
    return m_deviceMap.contains(uuid);
 }
 
 // Note that we do not specifically track root devices, the ones that are discoverable. So we store the
 // root device uuid for each device recorded (ones that support RUI service).
-int UserInterfaceMap::checkForRemovedDevices( const QStringList& newDeviceList )
+int UserInterfaceMap::checkForRemovedDevices(const QStringList& newDeviceList)
 {
     int deleteCount = 0;
 
@@ -67,44 +69,39 @@ int UserInterfaceMap::checkForRemovedDevices( const QStringList& newDeviceList )
      }
 
      foreach (QString deviceUuid, removeList) {
-        removeDevice(deviceUuid);
+         removeDevice(deviceUuid);
      }
 
      return deleteCount;
 }
 
-void UserInterfaceMap::removeDevice(const QString& uuid) {
-
+void UserInterfaceMap::removeDevice(const QString& uuid)
+{
     if (m_deviceMap.contains(uuid)) {
-
         RUIDevice device = m_deviceMap[uuid];
-
 
         QListIterator<RUIService> iterator(device.m_serviceList);
 
         while (iterator.hasNext()) {
-
             RUIService service = iterator.next();
             QString serviceKey = service.m_controlURL;
             removeServiceUIs(serviceKey);
         }
-
-        //fprintf(stderr," - Removing device: %s [%s] %s\n", uuid.toUtf8().data(), device.m_baseURL.toUtf8().data(), device.m_friendlyName.toUtf8().data());
 
     }
 
     m_deviceMap.remove(uuid);
 }
 
-void UserInterfaceMap::addServiceUIs(const QString& serviceKey, const QList<RUIInterface>& uiList) {
-
+void UserInterfaceMap::addServiceUIs(const QString& serviceKey, const QList<RUIInterface>& uiList)
+{
     m_mutex.lock();
     m_serviceUIs.insert(serviceKey, uiList);
     m_mutex.unlock();
 }
 
-void UserInterfaceMap::removeServiceUIs(const QString& serviceKey) {
-
+void UserInterfaceMap::removeServiceUIs(const QString& serviceKey)
+{
     m_mutex.lock();
     m_serviceUIs.remove(serviceKey);
     m_mutex.unlock();
@@ -112,72 +109,65 @@ void UserInterfaceMap::removeServiceUIs(const QString& serviceKey) {
 
 void UserInterfaceMap::dumpToConsole()
 {
-    fprintf( stderr, "\nUserInterfaceMap:\n");
+    fprintf(stderr, "\nUserInterfaceMap:\n");
     QMapIterator<QString, RUIDevice> i(m_deviceMap);
-     while (i.hasNext()) {
-         i.next();
-         const RUIDevice device = i.value();
-         fprintf( stderr,"- Device: %s [%s]\n", device.m_friendlyName.toUtf8().data(), device.m_uuid.toUtf8().data());
-         fprintf( stderr,"  - baseURL: %s\n", device.m_baseURL.toUtf8().data());
+    while (i.hasNext()) {
+        i.next();
+        const RUIDevice device = i.value();
+        fprintf(stderr,"- Device: %s [%s]\n", device.m_friendlyName.toUtf8().data(), device.m_uuid.toUtf8().data());
+        fprintf(stderr,"  - baseURL: %s\n", device.m_baseURL.toUtf8().data());
 
-         QListIterator<RUIService> iterator(device.m_serviceList);
+        QListIterator<RUIService> iterator(device.m_serviceList);
 
-         while (iterator.hasNext()) {
+        while (iterator.hasNext()) {
+            RUIService service = iterator.next();
+            QString serviceKey = service.m_controlURL;
+            fprintf( stderr,"  - Service: %s\n", service.m_serviceID.toUtf8().data());
+            fprintf( stderr,"    - type: %s\n", service.m_serviceType.toUtf8().data());
+            fprintf( stderr,"    - baseURL: %s\n", service.m_baseURL.toUtf8().data());
+            fprintf( stderr,"    - eventURL: %s\n", service.m_eventURL.toUtf8().data());
+            fprintf( stderr,"    - controlURL: %s\n", service.m_controlURL.toUtf8().data());
+            fprintf( stderr,"    - descriptionURL: %s\n", service.m_descriptionURL.toUtf8().data());
 
-             RUIService service = iterator.next();
-             QString serviceKey = service.m_controlURL;
-             fprintf( stderr,"  - Service: %s\n", service.m_serviceID.toUtf8().data());
-             fprintf( stderr,"    - type: %s\n", service.m_serviceType.toUtf8().data());
-             fprintf( stderr,"    - baseURL: %s\n", service.m_baseURL.toUtf8().data());
-             fprintf( stderr,"    - eventURL: %s\n", service.m_eventURL.toUtf8().data());
-             fprintf( stderr,"    - controlURL: %s\n", service.m_controlURL.toUtf8().data());
-             fprintf( stderr,"    - descriptionURL: %s\n", service.m_descriptionURL.toUtf8().data());
+            if (m_serviceUIs.contains(serviceKey)) {
+                QList<RUIInterface> serviceList = m_serviceUIs[serviceKey];
+                QListIterator<RUIInterface> iterator(serviceList);
 
-             if (m_serviceUIs.contains(serviceKey)) {
+                while (iterator.hasNext()) {
+                    RUIInterface ui = iterator.next();
 
-                 QList<RUIInterface> serviceList = m_serviceUIs[serviceKey];
+                    fprintf( stderr,"    - ui: %s [%s]\n", ui.m_name.toUtf8().data(), ui.m_uiID.toUtf8().data());
+                    fprintf( stderr,"      - description: %s\n", ui.m_description.toUtf8().data());
 
-                 QListIterator<RUIInterface> iterator(serviceList);
+                    QListIterator<RUIIcon> iconIterator(ui.m_iconList);
 
-                 while (iterator.hasNext()) {
-
-                     RUIInterface ui = iterator.next();
-
-                     fprintf( stderr,"    - ui: %s [%s]\n", ui.m_name.toUtf8().data(), ui.m_uiID.toUtf8().data());
-                     fprintf( stderr,"      - description: %s\n", ui.m_description.toUtf8().data());
-
-                     QListIterator<RUIIcon> iconIterator(ui.m_iconList);
-
-                     while (iconIterator.hasNext()) {
-
-                         RUIIcon icon = iconIterator.next();
-                         fprintf( stderr,"      - icon: %sx%s (%s bit, %s) - %s\n",
-                                  icon.m_width.toUtf8().data(),
-                                  icon.m_height.toUtf8().data(),
-                                  icon.m_depth.toUtf8().data(),
-                                  icon.m_mimeType.toUtf8().data(),
-                                  icon.m_url.toUtf8().data());
+                    while (iconIterator.hasNext()) {
+                        RUIIcon icon = iconIterator.next();
+                        fprintf(stderr,"      - icon: %sx%s (%s bit, %s) - %s\n",
+                                icon.m_width.toUtf8().data(),
+                                icon.m_height.toUtf8().data(),
+                                icon.m_depth.toUtf8().data(),
+                                icon.m_mimeType.toUtf8().data(),
+                                icon.m_url.toUtf8().data());
                      }
 
                      QListIterator<RUIProtocol> protocolIterator(ui.m_protocolList);
 
                      while (protocolIterator.hasNext()) {
-
                          RUIProtocol protocol = protocolIterator.next();
-                         fprintf( stderr,"      - protocol: %s (%s)\n",
-                                  protocol.m_shortName.toUtf8().data(),
-                                  protocol.m_protocolInfo.toUtf8().data());
+                         fprintf(stderr,"      - protocol: %s (%s)\n",
+                                 protocol.m_shortName.toUtf8().data(),
+                                 protocol.m_protocolInfo.toUtf8().data());
 
                          QListIterator<QString> uriIterator(protocol.m_uriList);
 
                          while (uriIterator.hasNext()) {
 
                              QString uri = uriIterator.next();
-                             fprintf( stderr,"        - uri: %s\n",
-                                      uri.toUtf8().data());
+                             fprintf(stderr,"        - uri: %s\n",
+                                     uri.toUtf8().data());
                          }
                      }
-
                  }
              }
          }
@@ -190,41 +180,35 @@ void UserInterfaceMap::dumpToConsole()
      while (iter_rts.hasNext()) {
           iter_rts.next();
           const QString server = iter_rts.key();
-          fprintf( stderr,"- %s\n", server.toUtf8().data());
+          fprintf(stderr,"- %s\n", server.toUtf8().data());
     }
 }
 
 QVariantList UserInterfaceMap::generateUIList()
 {
-    //fprintf( stderr, "generateUIList\n");
     QVariantList list;
 
     m_mutex.lock();
-
     m_transportServers.clear();
 
     QMapIterator<QString, QList<RUIInterface> > i(m_serviceUIs);
     while (i.hasNext()) {
-
         i.next();
         const QList<RUIInterface> interfaceList = i.value();
 
         QListIterator<RUIInterface> iterator(interfaceList);
 
         while (iterator.hasNext()) {
-
             RUIInterface interface = iterator.next();
             list.append( interface.toMap());
 
             // Add RUI base URIs to the transport server map.
             QListIterator<RUIProtocol> iter_protocol(interface.m_protocolList);
             while (iter_protocol.hasNext()) {
-
                 RUIProtocol protocol = iter_protocol.next();
 
                 QListIterator<QString> iter_uri(protocol.m_uriList);
                 while (iter_uri.hasNext()) {
-
                     QString uri = iter_uri.next();
                     QUrl qurl(uri);
                     QString host = qurl.host();
@@ -239,17 +223,12 @@ QVariantList UserInterfaceMap::generateUIList()
     }
 
     m_mutex.unlock();
-
     return list;
 }
 
-bool UserInterfaceMap::isHostRUITransportServer( const QString& host )
+bool UserInterfaceMap::isHostRUITransportServer(const QString& host)
 {
-    bool isRTS;
-
-    isRTS = m_transportServers.contains(host);
-
-    return isRTS;
+    return m_transportServers.contains(host);
 }
 
 

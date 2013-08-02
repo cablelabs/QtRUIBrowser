@@ -30,7 +30,6 @@
 #include <QStringListModel>
 #include <QToolBar>
 #include <QWebView>
-//#include "qwebview.h"
 #include "discoveryproxy.h"
 #include "qwebinspector.h"
 #include "webinspector.h"
@@ -73,9 +72,9 @@ protected slots:
 
 protected:
     QString addressUrl() const;
-    //virtual void keyPressEvent(QKeyEvent *event);
     bool eventFilter(QObject* object, QEvent* event);
-    private:
+
+private:
     void buildUI();
     void init();
     void createMenuBar();

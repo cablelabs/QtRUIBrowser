@@ -30,20 +30,12 @@
 #include <qwebpage.h>
 
 class RUIWebPage : public QWebPage {
-
     Q_OBJECT
 
 public:
     RUIWebPage(QObject* parent = 0);
 
-    //virtual bool acceptNavigationRequest(QWebFrame* frame, const QNetworkRequest& request, NavigationType type);
-
     QString userAgentForUrl(const QUrl& url) const;
-
-public slots:
-
-private:
-
 };
 
 #endif

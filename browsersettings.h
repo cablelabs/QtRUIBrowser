@@ -31,13 +31,10 @@
 class BrowserSettings : public QSettings
 {
     Q_OBJECT
+
 public:
     explicit BrowserSettings(QObject *parent = 0);
     static BrowserSettings* Instance();
-    
-signals:
-    
-public slots:
 
 private:
     static BrowserSettings* m_pInstance;
@@ -66,7 +63,6 @@ public:
     QString defaultRUILabel;
     QString tvRemoteURL;
     void save();
-
 };
 
 #endif // BROWSERSETTINGS_H

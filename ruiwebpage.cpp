@@ -24,9 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include "ruiwebpage.h"
-//#include <QWebPage>
 #include "qwebpage.h"
-#include <stdio.h>
 #include "discoveryproxy.h"
 #include "browsersettings.h"
 
@@ -47,25 +45,12 @@ QString RUIWebPage::userAgentForUrl(const QUrl& url) const
 
     // Always add the product token, but only add the CertID if this is a RUI Transport Server
     // AND the protocol is https.
-
     userAgent += " DLNADOC/1.50 DLNA-HTML5/1.0";
-
-    if ( scheme.compare("https") == 0) {
-
+    if (scheme.compare("https") == 0) {
         if (proxy->isHostRUITransportServer(host)) {
-
             userAgent += " (CertID " + settings->certID + ")";
         }
     }
-
-    /*
-    fprintf(stderr,"url: %s **  scheme: %s**  host: %s userAgent: %s\n"
-            , url.toString().toAscii().data()
-            , scheme.toAscii().data()
-            , host.toAscii().data()
-            , userAgent.toAscii().data()
-            );
-    */
 
     return userAgent;
 }

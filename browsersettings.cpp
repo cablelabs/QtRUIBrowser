@@ -54,36 +54,57 @@ BrowserSettings* BrowserSettings::m_pInstance = NULL;
 #define keyRUIImage       "defaultRUI/image"
 #define keyRUILabel       "defaultRUI/label"
 
-BrowserSettings::BrowserSettings(QObject *parent) :
-    QSettings("qtruibrowser.ini", QSettings::IniFormat, parent)
+BrowserSettings::BrowserSettings(QObject *parent)
+    : QSettings("qtruibrowser.ini", QSettings::IniFormat, parent)
 {
     generateDefaults();
 
-    if (contains(keyTitleBar)) hasTitleBar = value(keyTitleBar).toBool();
-    if (contains(keyMenuBar)) hasMenuBar = value(keyMenuBar).toBool();
-    if (contains(keyNavigationBar)) hasNavigationBar = value(keyNavigationBar).toBool();
-    if (contains(keyStartFullScreen)) startFullScreen = value(keyStartFullScreen).toBool();
-    if (contains(keyStaysOnTop)) staysOnTop = value(keyStaysOnTop).toBool();
-    if (contains(keyWebInspector)) hasWebInspector = value(keyWebInspector).toBool();
+    if (contains(keyTitleBar))
+        hasTitleBar = value(keyTitleBar).toBool();
+    if (contains(keyMenuBar))
+        hasMenuBar = value(keyMenuBar).toBool();
+    if (contains(keyNavigationBar))
+        hasNavigationBar = value(keyNavigationBar).toBool();
+    if (contains(keyStartFullScreen))
+        startFullScreen = value(keyStartFullScreen).toBool();
+    if (contains(keyStaysOnTop))
+        staysOnTop = value(keyStaysOnTop).toBool();
+    if (contains(keyWebInspector))
+        hasWebInspector = value(keyWebInspector).toBool();
 
-    if (contains(keyUrlEdit)) hasUrlEdit = value(keyUrlEdit).toBool();
-    if (contains(keyHomeButton)) hasHomeButton = value(keyHomeButton).toBool();
-    if (contains(keyBackButton)) hasBackButton = value(keyBackButton).toBool();
-    if (contains(keyReloadButton)) hasReloadButton = value(keyReloadButton).toBool();
-    if (contains(keyForwardButton)) hasForwardButton = value(keyForwardButton).toBool();
-    if (contains(keyStopButton)) hasStopButton = value(keyStopButton).toBool();
+    if (contains(keyUrlEdit))
+        hasUrlEdit = value(keyUrlEdit).toBool();
+    if (contains(keyHomeButton))
+        hasHomeButton = value(keyHomeButton).toBool();
+    if (contains(keyBackButton))
+        hasBackButton = value(keyBackButton).toBool();
+    if (contains(keyReloadButton))
+        hasReloadButton = value(keyReloadButton).toBool();
+    if (contains(keyForwardButton))
+        hasForwardButton = value(keyForwardButton).toBool();
+    if (contains(keyStopButton))
+        hasStopButton = value(keyStopButton).toBool();
 
-    if (contains(keyCertID)) certID = value(keyCertID).toString();
-    if (contains(keyTVRemoteUrl)) tvRemoteURL = value(keyTVRemoteUrl).toString();
+    if (contains(keyCertID))
+        certID = value(keyCertID).toString();
+    if (contains(keyTVRemoteUrl))
+        tvRemoteURL = value(keyTVRemoteUrl).toString();
 
-    if (contains(keyRUIUrl)) defaultRUIUrl = value(keyRUIUrl).toString();
-    if (contains(keyRUIImage)) defaultRUIImage = value(keyRUIImage).toString();
-    if (contains(keyRUILabel)) defaultRUILabel = value(keyRUILabel).toString();
+    if (contains(keyRUIUrl))
+        defaultRUIUrl = value(keyRUIUrl).toString();
+    if (contains(keyRUIImage))
+        defaultRUIImage = value(keyRUIImage).toString();
+    if (contains(keyRUILabel))
+        defaultRUILabel = value(keyRUILabel).toString();
 
-    if (contains(keyProxyHost)) proxyHost = value(keyProxyHost).toString();
-    if (contains(keyProxyPort)) proxyPort = value(keyProxyPort).toInt();
-    if (contains(keyProxyEnabled)) proxyEnabled = value(keyProxyEnabled).toBool();
-    if (contains(keyProxyType)) proxyType = value(keyProxyType).toString();
+    if (contains(keyProxyHost))
+        proxyHost = value(keyProxyHost).toString();
+    if (contains(keyProxyPort))
+        proxyPort = value(keyProxyPort).toInt();
+    if (contains(keyProxyEnabled))
+        proxyEnabled = value(keyProxyEnabled).toBool();
+    if (contains(keyProxyType))
+        proxyType = value(keyProxyType).toString();
 
     save();
 }
@@ -119,7 +140,7 @@ void BrowserSettings::generateDefaults()
 
 void BrowserSettings::save()
 {
-    setValue(keyTitleBar, hasTitleBar );
+    setValue(keyTitleBar, hasTitleBar);
     setValue(keyMenuBar, hasMenuBar);
     setValue(keyNavigationBar, hasNavigationBar);
     setValue(keyStartFullScreen, startFullScreen);
@@ -148,8 +169,7 @@ void BrowserSettings::save()
 
 BrowserSettings* BrowserSettings::Instance()
 {
-    if ( !m_pInstance )
-    {
+    if (!m_pInstance) {
         m_pInstance = new BrowserSettings;
     }
 

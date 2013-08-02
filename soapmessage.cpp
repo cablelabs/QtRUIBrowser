@@ -28,8 +28,6 @@
 
 #include <QDomText>
 
-#define kElementEnvelope "s:Envelope"
-#define kElementBody "s:Body"
 
 SoapMessage::SoapMessage(QObject *parent) :
     QObject(parent), m_document()
@@ -61,12 +59,12 @@ void SoapMessage::addMethodArgument(const QString& name, const QString& value)
 
 void SoapMessage::generateEnvelope()
 {
-    QDomElement root = m_document.createElement(kElementEnvelope);
+    QDomElement root = m_document.createElement("s:Envelope");
     root.setAttribute("xmlns:s","http://schemas.xmlsoap.org/soap/envelope/");
     root.setAttribute("s:encodingStyle","http://schemas.xmlsoap.org/soap/encoding/");
     m_document.appendChild(root);
 
-    m_body = m_document.createElement(kElementBody);
+    m_body = m_document.createElement("s:Body");
     root.appendChild(m_body);
 }
 
