@@ -31,9 +31,15 @@
 #include <QFileInfo>
 #include <QFontDatabase>
 #include <QSettings>
+#include <QTextStream>
 
 
-void applyDefaultSettings()
+static void printUsage(const QString& program)
+{
+    QTextStream(stderr) << "Usage: " << program << " [-h | --help] [--fullscreen] [url]" << endl;
+}
+
+static void applyDefaultSettings()
 {
 
     QWebSettings::setMaximumPagesInCache(4);
@@ -50,24 +56,39 @@ int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
 
+    const QStringList& args = app.arguments();
+    bool startFullScreen = false;
+    QString uri;
+    for (int i = 1; i < args.size(); ++i) {
+        const QString& arg = args[i];
+        if (arg == "--fullscreen") {
+            startFullScreen = true;
+        } else if (arg == "--help" || arg == "-h") {
+            printUsage(args[0]);
+            return 1;
+        } else if (uri.isEmpty() && !arg.startsWith('-') && !arg.startsWith("--")) {
+            uri = arg;
+        } else {
+            QTextStream(stderr) << "Error: Unknown argument " << arg << endl;
+            printUsage(args[0]);
+            return 1;\
+        }
+    }
     applyDefaultSettings();
 
     app.setOrganizationName("CableLabs");
     app.setApplicationName("QtRUIBrowser");
     app.setApplicationVersion("0.1");
 
-    MainWindow* window = new MainWindow();
+    MainWindow window(startFullScreen);
 
-    QStringList args = QApplication::instance()->arguments();
-
-    QString lastArg = args[args.length()-1];
-    if (!lastArg.isNull() && lastArg.contains("://")) {
-        window->load(lastArg);
+    if (!uri.isEmpty()) {
+        window.load(uri);
     } else {
-        window->home();
+        window.home();
     }
-    window->show();
-    window->checkHttpProxyEnabled();
+    window.show();
+    window.checkHttpProxyEnabled();
 
     return app.exec();
 }

@@ -48,50 +48,34 @@
 
 #define TV_REMOTE_SIMULATOR 1
 
-#define RUI_WIDTH 1000
-#define RUI_HEIGHT 700
+static const int DEFAULT_HEIGHT = 700;
+static const int DEFAULT_WIDTH = 1000;
 
 const char* rui_home = "qrc:/www/index.html";
 
-MainWindow::MainWindow()
+MainWindow::MainWindow(bool startFullScreen)
     : m_page(0)
     , m_navigationBar(0)
     , m_urlEdit(0)
     , m_discoveryProxy(0)
     , m_browserSettings(BrowserSettings::Instance())
 {
-    init();
-}
-
-void MainWindow::init()
-{
-    int height = RUI_HEIGHT;
-    int width = RUI_WIDTH;
-
-    QStringList args = QApplication::instance()->arguments();
-
-    if (args.contains("-fullscreen")) {
+    if (startFullScreen)
         m_browserSettings->startFullScreen = true;
-    }
-
-    if (args.contains("-?")) {
-        fprintf(stderr,"\n  usage:  QtRUIBrowser [-fullscreen] [url]\n\n");
-        ::exit(1);
-    }
 
     // We house the RUI webview and the web inspector in a splitter.
     QSplitter* splitter = new QSplitter(Qt::Vertical, this);
     setCentralWidget(splitter);
     splitter->setMinimumWidth(800);
     splitter->setMinimumHeight(450);
-    splitter->resize(RUI_WIDTH,RUI_HEIGHT);
+    splitter->resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
     // RUI webview
     m_page = new RUIWebPage(this);
     m_view = new QWebView(splitter);
     m_view->setPage(m_page);
     m_view->installEventFilter(this);
-    m_view->resize(width,height);
+    m_view->resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
     m_inspector = new WebInspector;
     connect(this, SIGNAL(destroyed()), m_inspector, SLOT(deleteLater()));
@@ -120,12 +104,11 @@ void MainWindow::init()
         setWindowFlags(flags);
     }
 
-    resize(width, height);
+    resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
     if (m_browserSettings->startFullScreen) {
         fullScreen(true);
     }
-
 
     // Discovery Proxy
     m_discoveryProxy = DiscoveryProxy::Instance();
@@ -527,7 +510,6 @@ void MainWindow::onJavaScriptWindowObjectCleared()
         attachProxyObject();
     } else {
         m_discoveryProxy->m_home = false;
-
     }
 }
 

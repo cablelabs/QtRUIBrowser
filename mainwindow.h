@@ -43,7 +43,7 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    MainWindow();
+    MainWindow(bool startFullScreen);
 
     void addCompleterEntry(const QUrl& url);
     void load(const QString& url);
@@ -76,12 +76,10 @@ protected:
 
 private:
     void buildUI();
-    void init();
     void createMenuBar();
     void attachProxyObject();
     void enableHttpProxy();
     void fullScreen(bool on);
-
 
     QWebView* m_view;
     RUIWebPage* m_page;
