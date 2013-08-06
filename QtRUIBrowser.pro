@@ -25,6 +25,8 @@ QMAKE_CXXFLAGS += $$(CXXFLAGS)
 QMAKE_CFLAGS += $$(CFLAGS)
 QMAKE_LFLAGS += $$(LDFLAGS)
 
+DEFINES += WTF_PLATFORM_QT=1
+
 SOURCES += \
     browsersettings.cpp \
     discoveryproxy.cpp \
