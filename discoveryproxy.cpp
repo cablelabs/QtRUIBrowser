@@ -40,6 +40,7 @@
 #include <QVariantMap>
 #include <QTextDocument>
 #include "ruiwebpage.h"
+#include <wtf/text/CString.h>
 
 DiscoveryProxy* DiscoveryProxy::m_pInstance = NULL;
 
@@ -86,19 +87,19 @@ void DiscoveryProxy::setScreenIndex(int index)
 }
 
 // Here with an updated server list from the Disovery module (callback)
-void DiscoveryProxy::serverListUpdate(std::string type, UPnPDeviceList *deviceList)
+void DiscoveryProxy::serverListUpdate(String type, UPnPDevMap *deviceList)
 {
-    fprintf(stderr,"\nServer List Update: Type: %s\n", type.c_str());
+    fprintf(stderr,"\nServer List Update: Type: %s\n", type.ascii().data());
 
-    if ( type.compare(service_type) != 0 ) {
-        fprintf(stderr,"\nServer List Update: Invalid service type: %s\n", type.c_str());
+    if (type != service_type) {
+        fprintf(stderr,"\nServer List Update: Invalid service type: %s\n", type.ascii().data());
     } else {
         processDeviceList(*deviceList);
     }
 }
 
 // Here on a SLOT to execute http request on main thread (signaled from serverListUpdate()
-void DiscoveryProxy::requestDeviceDescription( QString url)
+void DiscoveryProxy::requestDeviceDescription(QString url)
 {
     fprintf(stderr,"Request Device Description. url: %s\n", url.toUtf8().data());
     QNetworkRequest networkReq;
@@ -109,18 +110,18 @@ void DiscoveryProxy::requestDeviceDescription( QString url)
 }
 
 // Here to request a device description for each server
-void DiscoveryProxy::processDeviceList(UPnPDeviceList deviceList)
+void DiscoveryProxy::processDeviceList(UPnPDevMap deviceList)
 {
     QStringList devices;
 
     // Request device descriptions
-    for (UPnPDeviceList::iterator p = deviceList.begin(); p!=deviceList.end(); ++p) {
-        UPnPDevice device = p->second;
+    for (UPnPDevMap::iterator p = deviceList.begin(); p!=deviceList.end(); ++p) {
+        UPnPDevice device = p->value;
 
         // Process device on main thread.
-        emit ruiDeviceAvailable(QString(device.descURL.c_str()));
+        emit ruiDeviceAvailable(device.descURL);
 
-        devices.append(QString(device.uuid.c_str()));
+        devices.append(device.uuid);
     }
 
     // Check for deletions

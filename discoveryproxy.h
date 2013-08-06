@@ -26,9 +26,9 @@
 #ifndef DISCOVERYPROXY_H
 #define DISCOVERYPROXY_H
 
+// FIXME: We really shouldn't be including from WebKit's private API.
+#include "config.h"
 #include "DiscoveryWrapper.h"
-
-typedef std::map<std::basic_string<char>, UPnPDevice> UPnPDeviceList;
 
 using namespace WebCore;
 
@@ -61,7 +61,7 @@ private:
     QNetworkAccessManager m_soapHttp;
     QNetworkAccessManager m_http;
 
-    void processDeviceList(UPnPDeviceList);
+    void processDeviceList(UPnPDevMap);
     void processDevice(const QString& url, const QDomDocument& document);
     void processUIList(const QString& url, const QDomDocument& document);
     void notifyListChanged();
@@ -85,14 +85,14 @@ public slots:
 
 private slots:
     // IDiscoveryAPI
-    virtual void serverListUpdate(std::string type, UPnPDeviceList *devs);
+    virtual void serverListUpdate(String type, UPnPDevMap *devs);
 
     // IDiscoveryAPI - not implemented
-    virtual void UPnPDevAdded(std::string, UPnPDevice&) {}
-    virtual void UPnPDevDropped(std::string, UPnPDevice&) {}
-    virtual void ZCDevAdded(std::string, ZCDevice&) {}
-    virtual void ZCDevDropped(std::string, ZCDevice&) {}
-    virtual void sendEvent(std::string, std::string, std::string) {}
+    virtual void UPnPDevAdded(String, UPnPDevice&) {}
+    virtual void UPnPDevDropped(String, UPnPDevice&) {}
+    virtual void ZCDevAdded(String, ZCDevice&) {}
+    virtual void ZCDevDropped(String, ZCDevice&) {}
+    virtual void sendEvent(String, String, String) {}
     virtual void onError(int) {}
     virtual void onZCError(int) {}
     virtual void receiveID(long) {}
