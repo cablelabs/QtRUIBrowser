@@ -86,13 +86,13 @@ public slots:
 private slots:
     // IDiscoveryAPI
     virtual void serverListUpdate(std::string type, UPnPDeviceList *devs);
+    virtual void sendEvent(std::string, std::string, std::string);
 
     // IDiscoveryAPI - not implemented
     virtual void UPnPDevAdded(std::string, UPnPDevice&) {}
     virtual void UPnPDevDropped(std::string, UPnPDevice&) {}
     virtual void ZCDevAdded(std::string, ZCDevice&) {}
     virtual void ZCDevDropped(std::string, ZCDevice&) {}
-    virtual void sendEvent(std::string, std::string, std::string) {}
     virtual void onError(int) {}
     virtual void onZCError(int) {}
     virtual void receiveID(long) {}

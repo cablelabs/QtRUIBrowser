@@ -97,6 +97,13 @@ void DiscoveryProxy::serverListUpdate(std::string type, UPnPDeviceList *deviceLi
     }
 }
 
+// Here with a UPnP Event from the Discovery module (callback)
+void DiscoveryProxy::sendEvent(std::string uuid, std::string type, std::string body) {
+	// TODO: Detect service content changes and update UI.
+	fprintf(stderr,"IDiscovery::sendEvent(%s,%s,%s)\n", uuid.c_str(), type.c_str(), body.c_str());
+}
+
+
 // Here on a SLOT to execute http request on main thread (signaled from serverListUpdate()
 void DiscoveryProxy::requestDeviceDescription( QString url)
 {
