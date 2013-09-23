@@ -12,30 +12,13 @@ var uiElementCount = 0;
 
 
 function pageLoaded() {
-
-    uiElements = new Array();
+    uiElements = [];
 
     // Page HTML with empty elements
     generatePage();
 
-    proxyConnect();
-
-    // Restore our last known position
-    screenIndex = discoveryProxy.screenIndex();
-    scrollIndex = discoveryProxy.scrollIndex();
-    selectIndex = screenIndex + scrollIndex;
-
-    refreshRUIList();
-}
-
-function proxyConnect() {
-
-    if (typeof discoveryProxy == "undefined") {
-        alert("onLoad: no discovery proxy!!");
-    }
-
     // Establish callback for ui list updates
-    discoveryProxy.ruiListNotification.connect(refreshRUIList);
+    navigator.getNetworkServices(["upnp:urn:schemas-upnp-org:service:RemoteUIServer:1"], refreshRUIList, handleError);
 }
 
 function updateSelected() {
@@ -44,7 +27,7 @@ function updateSelected() {
     var index;
     var i;
 
-    for( i=0; i<elems.length; i++)  {
+    for( i = 0; i < elems.length; i++)  {
 
         // Two faces per panel. Update them both.
         index = i >> 1;
@@ -56,7 +39,7 @@ function updateSelected() {
     }
 
     elems = document.getElementsByClassName('uiElementName');
-    for( i=0; i<elems.length; i++)  {
+    for(i = 0; i < elems.length; i++)  {
 
         // Two faces per panel. Update them both.
         index = i >> 1;
@@ -68,72 +51,50 @@ function updateSelected() {
     }
 }
 
-function generateRUIElements() {
+function generateRUIElements(services) {
+    uiElements = [];
 
-    uiList = discoveryProxy.ruiList();
-    var count = uiList.length;
+    for (var i = 0; i < services.length; i++) {
+        var selected = (i == selectIndex) ? " selected" : "";
 
-    uiElements = new Array();
+        var icon = selectIcon(uiList[index]);
+        var iconURL = icon.url;
 
-    // There can be multiple urls for a given ui, which will result in additional divs
-    uiElementCount = 0;
+        // TODO: read style sheet instead of using constant
+        var paddingTop = (elementHeight - icon.height) / 2;
+        var paddingLeft = (elementHeight - icon.width) / 2;
 
-    for (var i=0; i < count; i++) {
+        var displayNumber = (i + 1) % 10;
 
-        var index = i;
+        var elementInnerHtml = "<div class='uiElementNumber" + selected + "'>";
+        elementInnerHtml += displayNumber;
+        elementInnerHtml += '</div>';
 
-        var generateUIDiv = function(ui) {
+        elementInnerHtml += "<div class='uiElementName" + selected + "'>";
+        elementInnerHtml += "<div class='uiElementIcon' ";
+        elementInnerHtml += "style='padding-left:" + paddingLeft + "; padding-top: " + paddingTop + ";'>";
+        elementInnerHtml += "<img src='" + iconURL + "'/>";
+        elementInnerHtml += "</div>";
 
-            var selected = (i == selectIndex) ? " selected" : "";
+        elementInnerHtml += "<div class='uiElementText'>";
+        elementInnerHtml += ui.name;
+        elementInnerHtml += "</div>";
+        elementInnerHtml += "</div>";
 
-            var icon = selectIcon(ui);
-            var iconURL = icon.url;
-
-            // TODO: read style sheet instead of using constant
-            var paddingTop = (elementHeight - icon.height) / 2;
-            var paddingLeft = (elementHeight - icon.width) / 2;
-
-            var displayNumber = (uiElementCount + 1) % 10;
-
-            var elementInnerHtml = "<div class='uiElementNumber" + selected + "'>";
-            elementInnerHtml += displayNumber;
-            elementInnerHtml += '</div>';
-
-            elementInnerHtml += "<div class='uiElementName" + selected + "'>";
-            elementInnerHtml += "<div class='uiElementIcon' ";
-            elementInnerHtml += "style='padding-left:" + paddingLeft + "; padding-top: " + paddingTop + ";'>";
-            elementInnerHtml += "<img src='" + iconURL + "'/>";
-            elementInnerHtml += "</div>";
-
-            elementInnerHtml += "<div class='uiElementText'>";
-            elementInnerHtml += ui.name;
-            elementInnerHtml += "</div>";
-            elementInnerHtml += "</div>";
-
-            var uiElem = new Object();
-            uiElem.uiID = ui.uiID;
-            uiElem.html = elementInnerHtml;
-
-            uiElements[uiElementCount] = uiElem;
-        }
-        generateUIDiv(uiList[index]);
-
-        uiElementCount++;
+        uiElements[i] = {
+            uiID: ui.uiID,
+            html: elementInnerHtml
+        };
     }
 
-    canScroll = true;
-    if (uiElements.length <= panelCount) {
-        canScroll = false;
-    }
+    canScroll = services.length > panelCount;
 }
 
 function generatePage() {
-
     var innerHTML = "";
 
     // Scroll up indicator
     innerHTML += "<div id='navHeader' class='arrowHidden' >";
-    //innerHTML += "<img src='qrc:/www/rui_arrowUp.png' />"
     innerHTML += "</div>";
 
     // Determine how many panels we will display - and whether we can scroll or not.
@@ -158,7 +119,6 @@ function generatePage() {
 
     // Scroll down indicator
     innerHTML += "<div id='navFooter' class='arrowHidden' >";
-    //innerHTML += "<img src='qrc:/www/rui_arrowDown.png' />"
     innerHTML += "</div>";
 
     innerHTML += "<div id='selectInstructions' >";
@@ -170,15 +130,19 @@ function generatePage() {
     document.getElementById('navUI').innerHTML = innerHTML;
 }
 
+function handleError(error) {
+    console.log(error);
+    window.alert(error);
+}
+
 // Load either the front or back faces.
 // This is required for an initial load and prior to a flip animation.
 function loadPanelElements(face, start) {
-
     if (uiElements.length == 0)
         return;
 
     var elems = document.getElementsByClassName(face);
-    for(i=0; i<elems.length; i++)  {
+    for(var i = 0; i < elems.length; i++)  {
         var currentHtml = elems[i].innerHTML;
 
         var index = start+i;
@@ -202,10 +166,10 @@ function loadPanelElements(face, start) {
 }
 
 // Here with an update list of RUIs
-function refreshRUIList() {
+function refreshRUIList(services) {
 
     // Array of innerHtml elements
-    generateRUIElements();
+    generateRUIElements(services);
 
     // Insert element HTML
     loadPanelElements('front', scrollIndex);
@@ -223,12 +187,11 @@ function selectIcon(ui) {
         return ui.iconList[0];
     }
 
-    var icon = new Object;
-    icon.width = 0;
-    icon.height = 0;
-    icon.url = "qrc:/www/rui_missingIcon.png";
-
-    return icon;
+    return {
+        width: 0,
+        height: 0,
+        url: "rui_missingIcon.png"
+    };
 }
 
 function scrollUp() {
@@ -259,12 +222,10 @@ function scrollDown() {
     flipped = !flipped;
 
     var elems = document.getElementsByClassName('panel');
-    for(i=0; i<elems.length; i++)  {
-        if ( flipped ) {
-            //alert("add flip");
+    for(var i = 0; i < elems.length; i++)  {
+        if (flipped) {
             $(elems[i]).addClass('flip');
         } else {
-            //alert("remove flip");
             $(elems[i]).removeClass('flip');
         }
     }
@@ -273,15 +234,11 @@ function scrollDown() {
 function recordScreenPosition() {
     selectIndex = screenIndex + scrollIndex;
     updateSelected();
-
-    // Save our state.
-    discoveryProxy.setScrollIndex(scrollIndex);
-    discoveryProxy.setScreenIndex(screenIndex);
 }
 
 function onKeydown(ev) {
 
-    key=((ev.which)||(ev.keyCode));
+    key = (ev.which || ev.keyCode);
 
     switch(key) {
 
@@ -322,16 +279,8 @@ function onKeydown(ev) {
         ev.preventDefault();
         break;
 
-    case 27:
-        // Will never get here, intercepted and "eaten" by application
-        // escape (home)
-        //ev.preventDefault();
-        //ev.stopPropagation();
-        break;
-
     default:
-
-        if ( key >= 48 && key <= 57 ) {
+        if (key >= 48 && key <= 57) {
             var numKey = key - 48;
             var index = numKeyToIndex(numKey);
             if (index >= 0 && index < uiList.length) {
@@ -339,21 +288,16 @@ function onKeydown(ev) {
                 recordScreenPosition();
                 selectUI(index);
             }
-        } else {
-
-            //alert(key);
         }
-
         break;
     }
 }
 
 function numKeyToIndex(numKey) {
 
-    for (var i=0; i < panelCount; i++) {
-
+    for (var i = 0; i < panelCount; i++) {
         var index = scrollIndex + i;
-        var displayIndex = (index+1) % 10;
+        var displayIndex = (index + 1) % 10;
         if (numKey === displayIndex) {
             return index;
         }
@@ -370,12 +314,8 @@ function selectPanel(index) {
 }
 
 function selectUI(index) {
-
     if (index < uiList.length) {
-
         var uri = uiList[index].protocolList[0].uriList[0];
-
-        //discoveryProxy.console("select ui: " + index + "  " + uiList[index].name + "  url: " + uri );
         window.location.href = uri;
     }
 }
