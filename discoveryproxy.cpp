@@ -143,6 +143,18 @@ void DiscoveryProxy::notifyListChanged()
         emit ruiListNotification();
 }
 
+// Compare device service type with ours, allowing for later versions on the device
+bool DiscoveryProxy::checkServiceType(const QString& presentedType)
+{
+    QString targetType = service_type;
+    QString targetService = targetType.left(targetType.lastIndexOf(":"));
+    QString presentedService = presentedType.left(presentedType.lastIndexOf(":"));
+    int targetVersion = targetType.right(targetType.lastIndexOf(":")+1).toInt();
+    int presentedVersion = presentedType.right(presentedType.lastIndexOf(":")+1).toInt();
+    
+    return (targetService.compare(presentedService) == 0 && presentedVersion >= targetVersion);
+}
+
 // Here with a new root device description. Process the root device and any nested devices.
 void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& document)
 {
@@ -202,7 +214,7 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
                 QDomElement serviceType = service.firstChildElement("serviceType");
 
                 QString serviceTypeText = trimElementText(serviceType.text());
-                if (serviceTypeText.compare(service_type) == 0) {
+                if (checkServiceType(serviceTypeText)) {
 
                     // Matching service type.
                     RUIService ruiService;
@@ -210,6 +222,7 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
 
                     QDomElement urlElement;
                     QString trimmedURL;
+                    QString slash = "/";
 
                     // Service Control URL
                     urlElement = service.firstChildElement("controlURL");
@@ -221,7 +234,7 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
                             if (trimmedURL[0] == '/') {
                                 ruiService.m_controlURL = hostURL + trimmedURL;
                             } else {
-                                ruiService.m_controlURL = baseURL + trimmedURL;
+                                ruiService.m_controlURL = baseURL + slash + trimmedURL;
                             }
                         }
                     }
@@ -236,7 +249,7 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
                             if (trimmedURL[0] == '/') {
                                 ruiService.m_descriptionURL = hostURL + trimmedURL;
                             } else {
-                                ruiService.m_descriptionURL = baseURL + trimmedURL;
+                                ruiService.m_descriptionURL = baseURL + slash + trimmedURL;
                             }
                         }
                     }
@@ -251,7 +264,7 @@ void DiscoveryProxy::processDevice(const QString& url, const QDomDocument& docum
                             if (trimmedURL[0] == '/') {
                                 ruiService.m_eventURL = hostURL + trimmedURL;
                             } else {
-                                ruiService.m_eventURL = baseURL + trimmedURL;
+                                ruiService.m_eventURL = baseURL + slash + trimmedURL;
                             }
                         }
                     }
@@ -438,6 +451,7 @@ void DiscoveryProxy::httpReply(QNetworkReply* reply)
     if (!document.setContent(xml, &errorMessage, &errorLine, &errorColumn)) {
         fprintf(stderr,"setContent failed. Line: %d, Column: %d, Error: %s\n",
                 errorLine, errorColumn, errorMessage.toUtf8().data() );
+        fprintf(stderr,"xml data:\n\n%s\n", xml.toUtf8().data() );
         return;
     }
 
@@ -473,6 +487,7 @@ void DiscoveryProxy::soapHttpReply(QNetworkReply* reply)
     if (!document.setContent(xml, &errorMessage, &errorLine, &errorColumn)) {
         fprintf(stderr,"setContent failed. Line: %d, Column: %d, Error: %s\n",
                 errorLine, errorColumn, errorMessage.toUtf8().data() );
+        fprintf(stderr,"xml data:\n\n%s\n", xml.toUtf8().data() );
         return;
     }
 
