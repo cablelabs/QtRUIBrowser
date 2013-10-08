@@ -69,6 +69,7 @@ private:
     QString trimElementText(const QString&);
     QString elementTextForTag(const QDomNode& parent, const QString& tag);
     QString userAgentString();
+    bool checkServiceType(const QString& url);
 
 signals:
     void ruiListNotification();
