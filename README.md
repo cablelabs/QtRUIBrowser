@@ -5,7 +5,6 @@ instructions.
 
 ## Build
 
-    :::bash
     # Your path should be setup already from building WebKit, like so:
     export QTDIR=~/workspace/qt5/qtbase
     export PATH=$QTDIR/bin:$PATH
@@ -23,7 +22,6 @@ instructions.
 
 ## Run
 
-    :::bash
     # Make sure this points to wherever you built WebKit
     # The binary will be in either bin/debug or bin/release based on how you built
     LD_LIBRARY_PATH=~/workspace/webkit/WebKitBuild/Debug/lib bin/debug/QtRUIBrowser
