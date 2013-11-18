@@ -90,8 +90,10 @@ function generateRUIElements() {
             var iconURL = icon.url;
 
             // TODO: read style sheet instead of using constant
-            var paddingTop = (elementHeight - icon.height) / 2;
-            var paddingLeft = (elementHeight - icon.width) / 2;
+            //var paddingTop = (elementHeight - icon.height) / 2;
+            //var paddingLeft = (elementHeight - icon.width) / 2;
+            var paddingTop = 13;
+            var paddingLeft = 4;
 
             var displayNumber = (uiElementCount + 1) % 10;
 

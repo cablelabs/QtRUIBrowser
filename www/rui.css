@@ -48,6 +48,15 @@ body
     margin-left: 5px;
 }
 
+.uiElementIcon img
+{
+	max-width: 80px;
+	max-height: 60px;
+	min-height: 60px;
+	width: auto;
+	height: auto;
+}
+
 .uiElementName
 {
 
