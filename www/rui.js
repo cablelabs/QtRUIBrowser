@@ -206,6 +206,9 @@ function loadPanelElements(face, start) {
 // Here with an update list of RUIs
 function refreshRUIList() {
 
+    // Start with empty page so we handle deletions properly
+    generatePage();
+
     // Array of innerHtml elements
     generateRUIElements();
 
