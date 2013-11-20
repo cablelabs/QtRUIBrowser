@@ -322,6 +322,7 @@ void DiscoveryProxy::processUIList(const QString& url, const QDomDocument& docum
         QDomElement iconList = ui.firstChildElement("iconList");
         if (!iconList.isNull()) {
             QString tag = "icon";
+            QString slash = "/";
             QDomElement icon = iconList.firstChildElement(tag);
             while (!icon.isNull()) {
                 RUIIcon ruiIcon;
@@ -338,7 +339,7 @@ void DiscoveryProxy::processUIList(const QString& url, const QDomDocument& docum
 
                     ruiIcon.m_url = hostURL + iconUrl;
                 } else {
-                    ruiIcon.m_url = baseURL + iconUrl;
+                    ruiIcon.m_url = baseURL + slash + iconUrl;
                 }
                 ruiIcon.m_width = elementTextForTag(icon, "width");
                 ruiIcon.m_height = elementTextForTag(icon, "height");
