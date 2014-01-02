@@ -28,6 +28,7 @@
 
 #include <qwebframe.h>
 #include <qwebpage.h>
+#include <QLibrary>
 
 class RUIWebPage : public QWebPage {
     Q_OBJECT
@@ -36,9 +37,26 @@ public:
     RUIWebPage(QObject* parent = 0);
 
     QString userAgentForUrl(const QUrl& url) const;
+    bool clientAuthExtensionReceived;
+    bool serverAuthExtensionReceived;
+    QByteArray suppDataToSend;
+    QSslCertificate suppDataX509;
+    QByteArray nonce;
+    QByteArray formatDTCPSuppData(QNetworkReply *reply);
+    QLibrary dtcp;
+
+    typedef int (*DTCPGetLocalCert)(unsigned char *, unsigned int *);
+    typedef int (*DTCPVerifyRemoteCert)(unsigned char *);
+    typedef int (*DTCPSignData)(unsigned char *, unsigned int, unsigned char *, unsigned int*);
+    typedef int (*DTCPVerifyData)(unsigned char *, unsigned int, unsigned char *, unsigned char*);
+    typedef int (*DTCPInit)(char *);
 
 private slots:
     void handleSslErrors(QNetworkReply* reply, const QList<QSslError> &errors);
+    void setTlsExtension(quint16 extensionType, const QSharedPointer<QSslContext> &sslContext, QNetworkReply *reply);
+    void setTlsSupplementalDataEntry(quint16 supplementalDataType, const QSharedPointer<QSslContext> &sslContext, QNetworkReply *reply);
+    void receiveTlsExtension(const QTlsExtension &tlsExtension, const QSharedPointer<QSslContext> &sslContext, QNetworkReply *reply);
+    void receiveTlsSupplementalDataEntry(const QTlsSupplementalDataEntry &supplementalDataEntry, const QSharedPointer<QSslContext> &sslContext, QNetworkReply *reply);
 };
 
 #endif

@@ -12,6 +12,9 @@ instructions.
     # This should point to your WebKit checkout
     export WEBKIT_ROOT=~/workspace/webkit
 
+    # This should point to your OpenSSL build which provides TLS extension and TLS supplemental data support
+    export OPENSSL_ROOT=/usr/local/ssl
+
     # This makes a debug version
     qmake QtRUIBrowser.pro
     
@@ -24,7 +27,8 @@ instructions.
 
     # Make sure this points to wherever you built WebKit
     # The binary will be in either bin/debug or bin/release based on how you built
-    LD_LIBRARY_PATH=~/workspace/webkit/WebKitBuild/Debug/lib bin/debug/QtRUIBrowser
+    # Change DTCP_LIBRARY_PATH and DTCP_KEY_STORAGE_DIR to reference the fully qualified path to the DTCP wrapper library and the DTCP key directory, respectively
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/workspace/webkit/WebKitBuild/Debug/lib DTCP_LIBRARY_PATH=/media/truecrypt1/dtcpmods/dtcpip_cvp2_test.so DTCP_KEY_STORAGE_DIR=/media/truecrypt1/dtcp-ip_sik /bin/debug/QtRUIBrowser
 
 ## Operation / Testing
 

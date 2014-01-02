@@ -13,7 +13,8 @@ INCLUDEPATH += \
     $(WEBKIT_ROOT)/Source/WebCore/Modules/discovery \
     $(WEBKIT_ROOT)/Source/WebCore/platform/qt \
     $(WEBKIT_ROOT)/Source/WebKit/qt/WebCoreSupport \
-    $(WEBKIT_ROOT)/Source/WTF
+    $(WEBKIT_ROOT)/Source/WTF \
+    $(OPENSSL_ROOT)/include
 
 CONFIG(debug, debug|release) {
     INCLUDEPATH += $(WEBKIT_ROOT)/WebKitBuild/Debug/include/QtWebKitWidgets
@@ -24,6 +25,8 @@ CONFIG(debug, debug|release) {
 QMAKE_CXXFLAGS += $$(CXXFLAGS)
 QMAKE_CFLAGS += $$(CFLAGS)
 QMAKE_LFLAGS += $$(LDFLAGS)
+
+LIBS += -L$(OPENSSL_ROOT)/lib
 
 SOURCES += \
     browsersettings.cpp \
