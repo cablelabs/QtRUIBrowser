@@ -33,12 +33,20 @@
 #include <QSslError>
 #include <QtDebug>
 
+static const int TIMEOUT_SECONDS = 10;
+
 RUIWebPage::RUIWebPage(QObject* parent)
     : QWebPage(parent)
 {
+    m_loadTimer.setInterval(TIMEOUT_SECONDS * 1000);
+    m_loadTimer.setSingleShot(true);
+
+    connect(this, SIGNAL(loadFinished(bool)), this, SLOT(handleLoadFinished(bool)));
+    connect(this, SIGNAL(loadStarted()), this, SLOT(handleLoadStarted()));
     connect(networkAccessManager(),
         SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError> &)), this,
-        SLOT(handleSslErrors(QNetworkReply*, const QList<QSslError> &)));  
+        SLOT(handleSslErrors(QNetworkReply*, const QList<QSslError> &)));
+    connect(&m_loadTimer, SIGNAL(timeout()), this, SLOT(handleTimeout()));
 }
 
 QString RUIWebPage::userAgentForUrl(const QUrl& url) const
@@ -63,6 +71,18 @@ QString RUIWebPage::userAgentForUrl(const QUrl& url) const
     return userAgent;
 }
 
+void RUIWebPage::handleLoadFinished(bool ok)
+{
+    qDebug() << "Load" << (ok ? "successful" : "failed");
+    m_loadTimer.stop();
+}
+
+void RUIWebPage::handleLoadStarted()
+{
+    qDebug() << "Started page load. Setting timeout for " << TIMEOUT_SECONDS << " seconds.";
+    m_loadTimer.start();
+}
+
 void RUIWebPage::handleSslErrors(QNetworkReply* reply, const QList<QSslError> &errors)
 {
     QStringList errorMessages;
@@ -74,9 +94,16 @@ void RUIWebPage::handleSslErrors(QNetworkReply* reply, const QList<QSslError> &e
         errorMessages.join("\n") +
         "\n\nYour connection to this site is not secure. Do you want to continue anyway?";
     QMessageBox box(QMessageBox::Critical, "SSL Errors", text,
-        QMessageBox::Yes | QMessageBox::No);
+        QMessageBox::Yes | QMessageBox::No, view());
     box.setDefaultButton(QMessageBox::No);
     if (box.exec() == QMessageBox::Yes) {
         reply->ignoreSslErrors(errors);
     }
+}
+
+void RUIWebPage::handleTimeout()
+{
+    qDebug() << "Timeout reached, cancelling page load.";
+    triggerAction(Stop, false);
+    QMessageBox::warning(view(), "Page Load Timeout", "Page took too long to load.");
 }

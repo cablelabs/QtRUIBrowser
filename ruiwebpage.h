@@ -26,6 +26,7 @@
 #ifndef ruiwebpage_h
 #define ruiwebpage_h
 
+#include <qtimer.h>
 #include <qwebframe.h>
 #include <qwebpage.h>
 
@@ -38,7 +39,13 @@ public:
     QString userAgentForUrl(const QUrl& url) const;
 
 private slots:
+    void handleLoadFinished(bool ok);
+    void handleLoadStarted();
     void handleSslErrors(QNetworkReply* reply, const QList<QSslError> &errors);
+    void handleTimeout();
+
+private:
+    QTimer m_loadTimer;
 };
 
 #endif
