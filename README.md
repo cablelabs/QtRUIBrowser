@@ -3,6 +3,19 @@
 These instructions assume you've build Qt5 and WebKit, following our standard
 instructions.
 
+## Get Source
+
+Download the repo using either SSH (if you're a CableLabs employee) or HTTP:
+
+    # recommended location
+    cd ~/workspace
+
+    git clone git@github.com:cablelabs/QtRUIBrowser.git
+    # or
+    git clone https://github.com/cablelabs/QtRUIBrowser.git
+
+    cd QtRUIBrowser
+
 ## Build
 
     # Your path should be setup already from building WebKit, like so:
